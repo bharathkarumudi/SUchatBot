@@ -1,12 +1,15 @@
 /*-----------------------------------------------------------------------------
-A simple Language Understanding (LUIS) bot for the Microsoft Bot Framework. 
+A simple Language Understanding (LUIS) bot for the Microsoft Bot Framework.
 -----------------------------------------------------------------------------*/
 
 var restify = require('restify');
 var builder = require('botbuilder');
 var botbuilder_azure = require("botbuilder-azure");
 var azure = require('azure-storage');
-var dbconnection = require('./DatabaseManager');
+var connect = require('./DatabaseManager');
+var Tedious = require('tedious'); // Only require a library once per file
+var Connection = Tedious.Connection;
+var Request = Tedious.Request;
 
 
 // Setup Restify Server
@@ -14,7 +17,7 @@ var server = restify.createServer();
 server.listen(process.env.port || process.env.PORT || 3978, function () {
     console.log('%s listening to %s', server.name, server.url);
 });
-  
+
 // Create chat connector for communicating with the Bot Framework Service
 var connector = new builder.ChatConnector({
     appId: process.env.MicrosoftAppId,
@@ -22,11 +25,11 @@ var connector = new builder.ChatConnector({
     openIdMetadata: process.env.BotOpenIdMetadata
 });
 
-// Listen for messages from users 
+// Listen for messages from users
 server.post('/api/messages', connector.listen());
 
 /*----------------------------------------------------------------------------------------
-* Bot Storage: This is a great spot to register the private state storage for your bot. 
+* Bot Storage: This is a great spot to register the private state storage for your bot.
 * We provide adapters for Azure Table, CosmosDb, SQL Azure, or you can implement your own!
 * For samples and documentation, see: https://github.com/Microsoft/BotBuilder-Azure
 * ---------------------------------------------------------------------------------------- */
@@ -56,7 +59,7 @@ var recognizer = new builder.LuisRecognizer(LuisModelUrl);
 bot.recognizer(recognizer);
 
 // Add a dialog for each intent that the LUIS app recognizes.
-// See https://docs.microsoft.com/en-us/bot-framework/nodejs/bot-builder-nodejs-recognize-intent-luis 
+// See https://docs.microsoft.com/en-us/bot-framework/nodejs/bot-builder-nodejs-recognize-intent-luis
 bot.dialog('GreetingDialog',
     (session) => {
         session.send('You reached the Greeting intent. You said \'%s\'.', session.message.text);
@@ -85,9 +88,8 @@ bot.dialog('CancelDialog',
 })
 
 
-
-bot.dialog('profileDialog',
-    (session) => {
+/*
+bot.dialog('profileDialog', (session) => {
         session.send('You reached the profile intent. You said \'%s\'.', session.message.text);
 
         console.log('Reading rows from the Table...');
@@ -96,12 +98,51 @@ bot.dialog('profileDialog',
             if (err) throw err;
             console.log(result);
         }
-   
-   
-          session.endDialog(); 
+
+
+          session.endDialog();
     }
     ).triggerAction({
     matches: 'profile'
+})*/
+
+
+bot.dialog('profileDialog',(session) => { // Hey, this is a callback too!
+    session.send('You reached the profile intent. You said \'%s\'.', session.message.text);
+
+    console.log('Creating a connection');
+
+    //connect((connection) => {
+    // or with the traditional function notation
+    connect(function (connection) {
+        console.log('Reading rows from the Table...');
+
+        // Execute your queries here using your connection
+
+        request = new Request("select FNAME from StudentProfile where SUID=1", function (err, rowCount) { // Look another callback!
+            if (err) {
+                console.log('ERROR in QUERY');
+            } else {
+                console.log(rowCount + ' rows');
+            }
+            connection.close();
+        });
+
+        request.on('row', function (columns) {  // Iterate through the rows using a callback
+            columns.forEach(function (column) {
+                if (column.value === null) {
+                    console.log('NULL');
+                } else {
+                    console.log("%s\t%s", column.metadata.colName, column.value);
+                }
+            });
+        });
+        connection.execSql(request);
+    });
+
+
+} //end of dialog
+
+    ).triggerAction({
+    matches: 'profile'
 })
-
-
