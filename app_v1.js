@@ -87,55 +87,73 @@ bot.dialog('CancelDialog',
     matches: 'Cancel'
 })
 
-function queryDatabase(query, callback) {
-//                            ^^^^^^^^
-  connect(function(connection) {
 
-    const request = new Request(query, function(err, rowCount) {
-//  ^^^^^ use local variable
-      if (err) {
-        console.log('ERROR in QUERY');
-      } else {
-        console.log(rowCount + ' rows');
-      }
-      connection.close();
+
+bot.dialog('profileDialog',(session) => {
+    session.send('You reached the profile intent. You said \'%s\'.', session.message.text);
+    console.log('Creating a connection');
+
+    var userMessage = session.message.text;
+
+    if( userMessage.indexOf('Email') >= 0){
+        session.send('Your are looking for your email');
+
+        connect(function (connection) {
+        console.log('Reading rows from the Table...');
+
+        request = new Request("select Email from StudentProfile where SUID=1", function (err, rowCount) {
+
+            if (err) {
+                console.log('ERROR in QUERY');
+            } else {
+                console.log(rowCount + ' rows');
+            }
+            connection.close();
+        });
+
+        request.on('row', function (columns) {  // Iterate through the rows using a callback
+            columns.forEach(function (column) {
+                if (column.value === null) {
+                    console.log('NULL');
+                } else {
+                    session.send(column.value);
+                }
+            });
+        });
+        connection.execSql(request);
+    });
+       session.endDialog();
+       return;
+     } //end of email id if
+
+    connect(function (connection) {
+        console.log('Reading rows from the Table...');
+
+        request = new Request("select FNAME from StudentProfile where SUID=1", function (err, rowCount) {
+
+            if (err) {
+                console.log('ERROR in QUERY');
+            } else {
+                console.log(rowCount + ' rows');
+            }
+            connection.close();
+        });
+
+        request.on('row', function (columns) {  // Iterate through the rows using a callback
+            columns.forEach(function (column) {
+                if (column.value === null) {
+                    console.log('NULL');
+                } else {
+                    session.send(column.value);
+                }
+            });
+        });
+        connection.execSql(request);
     });
 
-    request.on('row', function(columns) {
-      columns.forEach(function(column) {
-        if (column.value === null) {
-          console.log('NULL');
-        } else {
-          callback(column.value);
-//        ^^^^^^^^
-        }
-      });
-    });
-    connection.execSql(request);
-  });
-}
 
+} //end of dialog
 
-bot.dialog('profileDialog', (session) => {
-  session.send('You reached the profile intent. You said \'%s\'.', session.message.text);
-  console.log('Creating a connection');
-
-  var userMessage = session.message.text;
-  if (userMessage.toLowerCase().indexOf('email') >= 0) {
-    session.send('Your are looking for your email');
-    queryDatabase("select Email from StudentProfile where SUID=1", function(value) {
-//                                                               ^^^^^^^^^^^^^^^^^
-      session.send(value);
-    });
-    session.endDialog();
-  } else if (userMessage.toLowerCase().indexOf('first name') >=0 ){
-    queryDatabase("select FNAME from StudentProfile where SUID=1", function(value) {
-      session.send(value);
-    });
-  } else {
-    session.send("We are still working on this functionality");
-  }
-
-}).triggerAction({
-  matches: 'profile'
-})
+).triggerAction({
+matches: 'profile'
+}) //end of trigger
