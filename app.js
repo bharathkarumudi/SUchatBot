@@ -88,38 +88,16 @@ bot.dialog('CancelDialog',
 })
 
 
-/*
-bot.dialog('profileDialog', (session) => {
-        session.send('You reached the profile intent. You said \'%s\'.', session.message.text);
 
-        console.log('Reading rows from the Table...');
-        dbconnection("select FNAME from StudentProfile where SUID=1"),
-        function (err, result, fields) {
-            if (err) throw err;
-            console.log(result);
-        }
-
-
-          session.endDialog();
-    }
-    ).triggerAction({
-    matches: 'profile'
-})*/
-
-
-bot.dialog('profileDialog',(session) => { // Hey, this is a callback too!
+bot.dialog('profileDialog',(session) => {
     session.send('You reached the profile intent. You said \'%s\'.', session.message.text);
-
     console.log('Creating a connection');
 
-    //connect((connection) => {
-    // or with the traditional function notation
     connect(function (connection) {
         console.log('Reading rows from the Table...');
 
-        // Execute your queries here using your connection
+        request = new Request("select FNAME from StudentProfile where SUID=1", function (err, rowCount) {
 
-        request = new Request("select FNAME from StudentProfile where SUID=1", function (err, rowCount) { // Look another callback!
             if (err) {
                 console.log('ERROR in QUERY');
             } else {
@@ -137,12 +115,13 @@ bot.dialog('profileDialog',(session) => { // Hey, this is a callback too!
                 }
             });
         });
+
         connection.execSql(request);
     });
 
 
 } //end of dialog
 
-    ).triggerAction({
-    matches: 'profile'
-})
+).triggerAction({
+matches: 'profile'
+}) //end of trigger

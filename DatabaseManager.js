@@ -1,34 +1,31 @@
-var Connection = require('tedious').Connection;
-var Request = require('tedious').Request;
+var Tedious = require('tedious'); // Only require a library once per file
+var Connection = Tedious.Connection;
+var Request = Tedious.Request;
 
 
-var sqlConnection = function sqlConnection() {
-// Create connection to database
-var config =
-  {
-    userName: '',
-    password: '',
-    server: '',
-    options:
-      {
-        database: '', 
-        encrypt: true
-      }
-  }
+function connect(cb) { // cb is short for callback. It should be a function.
 
-var connection = new Connection(config);
-// Attempt to connect and execute queries if connection goes through
+    var config = {
+        userName: '',
+        password: '',
+        server: '.database.windows.net',
+        options:
+          {
+              database: '',
+              encrypt: true
+          }
+     };
 
-connection.on('connect', function(err) {
-  if (err) {
-            console.log(err)
-   }
+    var connection = new Connection(config);
+    connection.on('connect', function(err) { // Attempt to connect and execute queries if connection goes through
+        if (err) {
+            console.log(err);
+            return; // Stop executing the function if it failed
+        }
 
-   else {
-     console.log('CONNECTED TO DATABASE');
-   }
+        console.log('CONNECTED TO DATABASE');
+        cb(connection);
+    });
+ }  //End of function connect
 
- }
- );
-}
-module.exports = sqlConnection;
+module.exports = connect; // This exports a function that creates the connection
