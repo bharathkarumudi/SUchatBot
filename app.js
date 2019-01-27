@@ -7,7 +7,7 @@ var builder = require('botbuilder');
 var botbuilder_azure = require("botbuilder-azure");
 var azure = require('azure-storage');
 var connect = require('./DatabaseManager');
-var Tedious = require('tedious'); // Only require a library once per file
+var Tedious = require('tedious');
 var Connection = Tedious.Connection;
 var Request = Tedious.Request;
 
@@ -93,6 +93,39 @@ bot.dialog('profileDialog',(session) => {
     session.send('You reached the profile intent. You said \'%s\'.', session.message.text);
     console.log('Creating a connection');
 
+    var userMessage = session.message.text;
+
+    if( userMessage.indexOf('Email') >= 0){
+        session.send('Your are looking for your email');
+
+        connect(function (connection) {
+        console.log('Reading rows from the Table...');
+
+        request = new Request("select Email from StudentProfile where SUID=1", function (err, rowCount) {
+
+            if (err) {
+                console.log('ERROR in QUERY');
+            } else {
+                console.log(rowCount + ' rows');
+            }
+            connection.close();
+        });
+
+        request.on('row', function (columns) {  // Iterate through the rows using a callback
+            columns.forEach(function (column) {
+                if (column.value === null) {
+                    console.log('NULL');
+                } else {
+                    session.send(column.value);
+                }
+            });
+        });
+        connection.execSql(request);
+    });
+       session.endDialog();
+       return;
+     } //end of email id if
+
     connect(function (connection) {
         console.log('Reading rows from the Table...');
 
@@ -111,11 +144,10 @@ bot.dialog('profileDialog',(session) => {
                 if (column.value === null) {
                     console.log('NULL');
                 } else {
-                    console.log("%s\t%s", column.metadata.colName, column.value);
+                    session.send(column.value);
                 }
             });
         });
-
         connection.execSql(request);
     });
 
