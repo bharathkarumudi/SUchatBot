@@ -116,7 +116,10 @@ function queryDatabase(query, callback) {
 }
 
 
-bot.dialog('profileDialog', (session) => {
+bot.dialog('profileDialog', (session,score) => {
+  if (session.score > 0.8) {
+    console.log ('score is good.');
+  }
   session.send('You reached the profile intent. You said \'%s\'.', session.message.text);
   console.log('Creating a connection');
 
