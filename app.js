@@ -55,11 +55,30 @@ var luisAPIHostName = process.env.LuisAPIHostName || 'westus.api.cognitive.micro
 const LuisModelUrl = 'https://' + luisAPIHostName + '/luis/v2.0/apps/' + luisAppId + '?subscription-key=' + luisAPIKey;
 
 // Create a recognizer that gets intents from LUIS, and add it to the bot
+//var recognizer = new builder.LuisRecognizer({'en': LuisModelUrl});  
 var recognizer = new builder.LuisRecognizer(LuisModelUrl);
 bot.recognizer(recognizer);
 
 // Add a dialog for each intent that the LUIS app recognizes.
 // See https://docs.microsoft.com/en-us/bot-framework/nodejs/bot-builder-nodejs-recognize-intent-luis
+
+/*
+var intents = new builder.IntentDialog({ recognizers: [recognizer] })
+
+  .matches('profile', [(session, args) => {
+  console.log(args.score);
+  console.log('##### Test Message......!');
+
+  if (args.score > 0.8) {
+    session.beginDialog('profile');
+  }
+  else {
+    session.send('We are working on this');
+
+  }
+}])
+*/
+
 bot.dialog('GreetingDialog',
     (session) => {
         session.send('You reached the Greeting intent. You said \'%s\'.', session.message.text);
@@ -116,10 +135,8 @@ function queryDatabase(query, callback) {
 }
 
 
-bot.dialog('profileDialog', (session,score) => {
-  if (session.score > 0.8) {
-    console.log ('score is good.');
-  }
+bot.dialog('profileDialog', (session) => {
+
   session.send('You reached the profile intent. You said \'%s\'.', session.message.text);
   console.log('Creating a connection');
 
@@ -135,10 +152,36 @@ bot.dialog('profileDialog', (session,score) => {
     queryDatabase("select FNAME from StudentProfile where SUID=1", function(value) {
       session.send(value);
     });
-  } else {
+  } else if (userMessage.toLowerCase().indexOf('last name') >=0 ){
+    queryDatabase("select LNAME from StudentProfile where SUID=1", function(value) {
+      session.send(value);
+    });
+  }  else if (userMessage.toLowerCase().indexOf('complete profile') >=0 ){
+    console.log("Executing complete profile");
+    queryDatabase("select FNAME,  LNAME, ProgramName, Email, AddressLine, City, StateCode, Zip, ClassMode from StudentProfile where SUID=1", function(value) {
+      session.send(value);
+    });
+  } 
+  
+  else {
     session.send("We are still working on this functionality");
   }
-
 }).triggerAction({
-  matches: 'profile'
+    matches: 'profile'
+})
+
+
+bot.dialog('accountsDialog', (session) => {
+  session.send('You reached the accounts intent. You said \'%s\'.', session.message.text);
+  var userMessage = session.message.text;
+  
+  if (userMessage.toLowerCase().indexOf('owe') >=0 ) {
+    queryDatabase("select TermFee-PaidAmount from Accounts where SUID=1", function(value) {
+      session.send("You owe: $%s",value);
+  });
+  session.endDialog();
+  }
+  
+}).triggerAction({
+  matches: 'accounts'
 })
