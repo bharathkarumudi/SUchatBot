@@ -55,7 +55,7 @@ var luisAPIHostName = process.env.LuisAPIHostName || 'westus.api.cognitive.micro
 const LuisModelUrl = 'https://' + luisAPIHostName + '/luis/v2.0/apps/' + luisAppId + '?subscription-key=' + luisAPIKey;
 
 // Create a recognizer that gets intents from LUIS, and add it to the bot
-//var recognizer = new builder.LuisRecognizer({'en': LuisModelUrl});  
+//var recognizer = new builder.LuisRecognizer({'en': LuisModelUrl});
 var recognizer = new builder.LuisRecognizer(LuisModelUrl);
 bot.recognizer(recognizer);
 
@@ -161,8 +161,8 @@ bot.dialog('profileDialog', (session) => {
     queryDatabase("select FNAME,  LNAME, ProgramName, Email, AddressLine, City, StateCode, Zip, ClassMode from StudentProfile where SUID=1", function(value) {
       session.send(value);
     });
-  } 
-  
+  }
+
   else {
     session.send("We are still working on this functionality");
   }
@@ -174,14 +174,14 @@ bot.dialog('profileDialog', (session) => {
 bot.dialog('accountsDialog', (session) => {
   session.send('You reached the accounts intent. You said \'%s\'.', session.message.text);
   var userMessage = session.message.text;
-  
+
   if (userMessage.toLowerCase().indexOf('owe') >=0 ) {
     queryDatabase("select TermFee-PaidAmount from Accounts where SUID=1", function(value) {
       session.send("You owe: $%s",value);
   });
   session.endDialog();
   }
-  
+
 }).triggerAction({
   matches: 'accounts'
 })
