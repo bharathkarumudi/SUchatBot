@@ -6,12 +6,12 @@ var Request = Tedious.Request;
 function connect(cb) { // cb is short for callback. It should be a function.
 
     var config = {
-        userName: '',
-        password: '',
-        server: '.database.windows.net',
+        userName: 'suadmin',
+        password: '$uadmin123',
+        server: 'sustudents.database.windows.net',
         options:
           {
-              database: '',
+              database: 'SU_University',
               encrypt: true
           }
      };
