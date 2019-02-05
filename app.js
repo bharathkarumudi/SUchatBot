@@ -176,7 +176,7 @@ bot.dialog('accountsDialog', (session) => {
   var userMessage = session.message.text;
 
   if (userMessage.toLowerCase().indexOf('owe') >=0 ) {
-    queryDatabase("select TermFee from Accounts where SUID=1", function(value) {
+    queryDatabase("select TermFee-PaidAmount from Accounts where SUID=1", function(value) {
       session.send("You owe: $%s",value);
   });
   session.endDialog();
