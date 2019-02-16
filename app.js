@@ -200,5 +200,5 @@ bot.dialog('courseDialog', (session) => {
   }
 
 }).triggerAction({
-  matches: 'accounts'
+  matches: 'course'
 })
