@@ -185,3 +185,20 @@ bot.dialog('accountsDialog', (session) => {
 }).triggerAction({
   matches: 'accounts'
 })
+
+
+
+bot.dialog('courseDialog', (session) => {
+  session.send('You reached the Course intent. You said \'%s\'.', session.message.text);
+  var userMessage = session.message.text;
+
+  if (userMessage.toLowerCase().indexOf('course list') >=0 ) {
+    queryDatabase("select coursetitle from Courses", function(value) {
+      session.send("You owe: $%s",value);
+  });
+  session.endDialog();
+  }
+
+}).triggerAction({
+  matches: 'accounts'
+})
