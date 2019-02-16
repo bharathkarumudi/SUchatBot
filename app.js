@@ -189,7 +189,7 @@ bot.dialog('accountsDialog', (session) => {
 
 
 bot.dialog('courseDialog', (session) => {
-  session.send('You reached the Course intent. You said \'%s\'.', session.message.text);
+  //session.send('You reached the Course intent. You said \'%s\'.', session.message.text);
   var userMessage = session.message.text;
 
   if (userMessage.toLowerCase().indexOf('course list') >=0 ) {
@@ -201,4 +201,20 @@ bot.dialog('courseDialog', (session) => {
 
 }).triggerAction({
   matches: 'course'
+})
+
+
+bot.dialog('scheduleDialog', (session) => {
+  var userMessage = session.message.text;
+
+  if (userMessage.toLowerCase().indexOf('class') >=0 ) {
+    queryDatabase("select CourseTitle, ScheduleDay from Courses where CourseID in
+                  (select CourseID from StudentEnrolledCourses where SUid = 1)", function(value) {
+      session.send("Your class schedule is: %s",value);
+  });
+  session.endDialog();
+  }
+
+}).triggerAction({
+  matches: 'schedule'
 })
