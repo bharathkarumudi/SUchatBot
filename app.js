@@ -206,11 +206,11 @@ bot.dialog('courseDialog', (session) => {
 
 bot.dialog('scheduleDialog', (session) => {
   var userMessage = session.message.text;
-
+  session.send('You reached the schedule intent');
   if (userMessage.toLowerCase().indexOf('class') >=0 ) {
-    queryDatabase("select CourseTitle, ScheduleDay from Courses where CourseID in
-                  (select CourseID from StudentEnrolledCourses where SUid = 1)", function(value) {
-      session.send("Your class schedule is: %s",value);
+    session.send("Your class schedule:");
+    queryDatabase("select CourseTitle, ScheduleDay from Courses where CourseID in (select CourseID from StudentEnrolledCourses where SUid = 1)", function(value) {
+      session.send(value);
   });
   session.endDialog();
   }
