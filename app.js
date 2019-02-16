@@ -194,7 +194,7 @@ bot.dialog('courseDialog', (session) => {
 
   if (userMessage.toLowerCase().indexOf('course list') >=0 ) {
     queryDatabase("select coursetitle from Courses", function(value) {
-      session.send("You owe: $%s",value);
+      session.send("List of available courses:\n%s",value);
   });
   session.endDialog();
   }
