@@ -98,7 +98,10 @@ bot.dialog('GreetingDialog',
     (session) => {
         //session.send('You reached the Greeting intent. You said \'%s\'.', session.message.text);
         session.send('Hello, How can I help you?');
-        session.endDialog();
+        queryDatabase(`SELECT Fact FROM table ORDER BY RAND() LIMIT 1`, function(value) {
+          session.send("Do you know?\n: %s",value);
+          session.endDialog();
+        });
     }
     ).triggerAction({
     matches: 'Greeting'
@@ -129,18 +132,13 @@ bot.dialog('CancelDialog',
 // Handling Profile related Intents
 bot.dialog('profileDialog', (session, args, next) => {
   var suid = lookup_session_suid(session);
-  //session.send('You reached the profile intent. You said \'%s\'.', session.message.text);
   var intent = args.intent;
   var profile_field = builder.EntityRecognizer.findEntity(intent.entities, 'profile_field');
   profile_field = profile_field ? profile_field.entity : null;
-  //Debug message
-  //session.send(`profile_field: ${profile_field}`);
-  //console.log('Creating a connection');
 
   var userMessage = session.message.text;
 
   if (profile_field == 'email') {
-    //session.send('Your are looking for your email');
     queryDatabase(`select Email from StudentProfile where SUID=${suid}`, function(value) {
       session.send("Your Email in records is: %s",value);
     });
@@ -163,7 +161,6 @@ bot.dialog('profileDialog', (session, args, next) => {
       session.send("Your phone number as in records is: %s", value);
   });
    } else if (profile_field == 'complete profile' || profile_field == 'profile'){
-    //console.log("Executing complete profile");
     queryDatabase(`select FNAME,  LNAME, ProgramName, Email, AddressLine, ClassMode from StudentProfile where SUID=${suid}`, function(value) {
       session.send(value);
     });
