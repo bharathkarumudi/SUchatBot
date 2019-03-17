@@ -13,3 +13,10 @@ insert into Accounts values (1, 1, 7500,2300, '01/22/2019')
 select * from Courses
 select * from StudentEnrolledCourses
 select * from Accounts
+
+insert into SUFunFacts (seqid, Fact) values
+(1, 'Syracuse ranked #53 among the Best National Universities'),
+(2,'Ernie Davis was the first African American to win the Heisman Trophy in 1961 and was inducted into the College Football Hall of Fame in 1979. Yep, he went to Syracuse University.'),
+(3, 'Syracuse has the largest snow plow in the world. Average snowfall is over 110 inches every year, a normal one won’t do!')
+(4, 'SU’s original colors were pink and pea green.'),
+(5, 'There are more than 245,000 Syracuse University alumni living in 162 countries and territories.')

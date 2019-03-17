@@ -92,14 +92,37 @@ function queryDatabase(query, callback, errcallback=null) {
   });
 }
 
-// Handling Greeting Intents
 
+// Function to execute the queries in Database with multiple columns in return.
+function queryMulColumns(query, callback, errcallback=null) {
+  connect(function(connection) {
+
+    const requestmulCol = new Request(query, function(err, rowCount) {
+      if (err) {
+        if(errcallback) { errcallback(err); }
+        console.log('ERROR in QUERY');
+      } else {
+        console.log(rowCount + ' rows');
+      }
+      connection.close();
+    });
+
+    requestmulCol.on('row', function(columns) {
+      callback(columns);
+    });
+    connection.execSql(requestmulCol);
+  });
+}
+
+//var suid = lookup_session_suid(session);
+suid = 2;
+
+// Handling Greeting Intents
 bot.dialog('GreetingDialog',
     (session) => {
         //session.send('You reached the Greeting intent. You said \'%s\'.', session.message.text);
-        session.send('Hello, How can I help you?');
-        queryDatabase(`SELECT Fact FROM table ORDER BY RAND() LIMIT 1`, function(value) {
-          session.send("Do you know?\n: %s",value);
+        queryDatabase(`select TOP 1 Fact from SUFunFacts order by newid()`, function(value) {
+          session.send("Hello, Welcome to Syracuse University! I am a bot and here to help you!\n\nDid you know?\n %s \n\n", value);
           session.endDialog();
         });
     }
@@ -107,11 +130,13 @@ bot.dialog('GreetingDialog',
     matches: 'Greeting'
 });
 
+
 // Handling the Help Intents
 bot.dialog('HelpDialog',
     (session) => {
         //session.send('You reached the Help intent. You said \'%s\'.', session.message.text);
-        session.send("You can ask me:\n1.What is my email? \n2.Show me my profile details? \n3. Enroll me in a class.")
+        session.send("You can ask me a question something like:\n1. Show me my profile details. \n2. How much I am due \n3. Enroll me in a class.");
+        session.send("So, how can I help you?");
         session.endDialog();
     }
     ).triggerAction({
@@ -131,42 +156,68 @@ bot.dialog('CancelDialog',
 
 // Handling Profile related Intents
 bot.dialog('profileDialog', (session, args, next) => {
-  var suid = lookup_session_suid(session);
   var intent = args.intent;
   var profile_field = builder.EntityRecognizer.findEntity(intent.entities, 'profile_field');
   profile_field = profile_field ? profile_field.entity : null;
 
-  var userMessage = session.message.text;
-
   if (profile_field == 'email') {
     queryDatabase(`select Email from StudentProfile where SUID=${suid}`, function(value) {
-      session.send("Your Email in records is: %s",value);
+        session.send("Your Email in records is: %s",value);
     });
+    }
 
-	} else if (profile_field == 'first'){
+    else if (profile_field == 'first'){
     queryDatabase(`select FNAME from StudentProfile where SUID=${suid}`, function(value) {
-      session.send("Your First name as in records is: %s", value);
+        session.send("Your First name as in records is: %s", value);
     });
+    }
 
-  	} else if (profile_field == 'last'){
+    else if (profile_field == 'last'){
     queryDatabase(`select LNAME from StudentProfile where SUID=${suid}`, function(value) {
-      session.send("Your Last Name as in records is: %s", value);
+        session.send("Your Last Name as in records is: %s", value);
     });
-   	} else if (profile_field == 'address'){
+    }
+
+    else if (profile_field == 'address'){
     queryDatabase(`select ADDRESSLINE from StudentProfile where SUID=${suid}`, function(value) {
       session.send("Your address as in records is:\n %s", value);
-  });
-   } else if (profile_field == 'phone'){
+    });
+    }
+
+    else if (profile_field == 'phone'){
     queryDatabase(`select PHONE from StudentProfile where SUID=${suid}`, function(value) {
       session.send("Your phone number as in records is: %s", value);
-  });
-   } else if (profile_field == 'complete profile' || profile_field == 'profile'){
-    queryDatabase(`select FNAME,  LNAME, ProgramName, Email, AddressLine, ClassMode from StudentProfile where SUID=${suid}`, function(value) {
-      session.send(value);
     });
-  }
-  else {
-    session.send("Sorry! the requested feature is not available at this time. But we will take this feedback and include in future version.");
+    }
+
+    else if (profile_field == 'complete profile' || profile_field == 'profile'){
+    queryMulColumns(`select FNAME,  LNAME, ProgramName, Email, AddressLine, phone, ClassMode from StudentProfile where SUID=${suid}`, function(student) {
+
+     var firstName, lastName, pgmName, email, address, classMode, phone;
+     student.forEach(function(column) {
+        if (column.metadata.colName == 'FNAME')
+            firstName = column.value;
+            else if (column.metadata.colName == 'LNAME')
+            lastName = column.value;
+            else if (column.metadata.colName == 'ProgramName')
+            pgmName = column.value;
+            else if (column.metadata.colName == 'Email')
+            email = column.value;
+            else if(column.metadata.colName == 'AddressLine')
+            address = column.value;
+            else if (column.metadata.colName == 'phone')
+            phone = column.value;
+            else if(column.metadata.colName == 'ClassMode')
+            classMode = column.value;
+      });
+
+     session.send("Your profile in University records is as below:\n\nName: %s\nEnrolled in: %s with %s mode.\nYou are reachable at: %s and %s.\nLocated at: %s ", firstName+" "+lastName, pgmName,classMode, email, phone, address);
+     });
+
+    }
+
+    else {
+    session.send("Sorry! the requested feature is not available at this time. But we will include in future version.");
   }
 }).triggerAction({
     matches: 'check_profile'
@@ -175,46 +226,44 @@ bot.dialog('profileDialog', (session, args, next) => {
 
 // Handling the Update profile intents
 bot.dialog('updateProfile', [ function (session, args) {
-    var suid = lookup_session_suid(session);
-    //session.send('You reached the update_profile intent. You said \'%s\'.', session.message.text);
-    var intent = args.intent;
-    //  var update = builder.EntityRecognizer.findEntity(intent.entities, 'update');
-    //   update = update ? update.entity : null;
+  var intent = args.intent;
+  var profile_field = builder.EntityRecognizer.findEntity(intent.entities, 'profile_field');
+  profile_field = profile_field ? profile_field.entity : null;
+  session.dialogData.profile_field = profile_field;
 
-    var profile_field = builder.EntityRecognizer.findEntity(intent.entities, 'profile_field');
-    profile_field = profile_field ? profile_field.entity : null;
-    session.dialogData.profile_field = profile_field;
+  if (!profile_field) {
+    session.send('Sorry, your request is not recognized.');
+    session.endDialog();
+  }
+  else {
+    builder.Prompts.text(session, `What is your new ${profile_field}?`);
+  }
+ },
+    function (session, results) {
+        var profile_field = session.dialogData.profile_field;
+        session.send(`Ok you want to change your ${profile_field} to ${results.response}`);
+        session.send(`Updating your ${profile_field}...`);
 
-    if (!profile_field) {
-        session.send('Sorry, your request is not recognized.');
-        session.endDialog();
-    } else {
-       builder.Prompts.text(session, `What is your new ${profile_field}?`);
-    }
-  },
-  	function (session, results) {
-    	var profile_field = session.dialogData.profile_field;
-    	var suid = lookup_session_suid(session);
-    	session.send(`Ok you want to change your ${profile_field} to ${results.response}`);
-    	session.send(`Updating your ${profile_field}...`);
+        if (profile_field == 'email'){
+            queryDatabase(`UPDATE StudentProfile SET email = '${results.response}' WHERE suid=${suid}`, function(value){
+            });
+          }
 
-    	if (profile_field == 'email'){
-    		queryDatabase(`UPDATE StudentProfile SET email = '${results.response}' WHERE suid=${suid}`, function(value){
-    		});
+          else if (profile_field == 'address'){
+            queryDatabase(`UPDATE StudentProfile SET addressLine = '${results.response}' WHERE suid=${suid}`, function(value) {
+            });
+          }
 
-    	} else if (profile_field == 'address'){
-    		queryDatabase(`UPDATE StudentProfile SET addressLine = '${results.response}' WHERE suid=${suid}`, function(value) {
-      		});
+          else if (profile_field == 'phone'){
+            queryDatabase(`UPDATE StudentProfile SET phone = '${results.response}' WHERE suid =${suid}`, function(value) {
+            });
+          }
 
-      	} else if (profile_field == 'phone'){
-      		queryDatabase(`UPDATE StudentProfile SET phone = '${results.response}' WHERE suid =${suid}`, function(value) {
-     		});
+          else {
+            session.send("Sorry! you are not authorized to change it.");
+          }
 
-    	} else {
-    		session.send("Sorry! the requested feature is not available at this time. But we will take this feedback and include in future version.");
-    	}
-
-    	session.send(`Your ${profile_field} has been updated to ${results.response}`);
+        session.send(`Your ${profile_field} has been updated to ${results.response}`);
     }]).triggerAction({
     matches: 'update_profile'
 });
@@ -222,19 +271,15 @@ bot.dialog('updateProfile', [ function (session, args) {
 
 //Handling the accounts intents
 bot.dialog('accountsDialog', (session, args, next) => {
-  var suid = lookup_session_suid(session);
-  session.send('You reached the accounts intent. You said \'%s\'.', session.message.text);
   var intent = args.intent;
   var accounts = builder.EntityRecognizer.findEntity(intent.entities, 'accounts');
   accounts = accounts ? accounts.entity : null;
-  //Debug message
-  session.send(`accounts: ${accounts}`);
 
   if (accounts == 'owe' || accounts == 'due') {
-    queryDatabase(`select TermFee-PaidAmount from Accounts WHERE suid=${suid}`, function(value) {
+    queryDatabase(`select distinct(termfee) - sum(Paidamount)  from Accounts where SUID=2 and DATEPART(quarter, paiddate) = DATEPART(quarter, GETDATE()) group by termfee`, function(value) {
       if (value > 0) {
-      session.send("You owe: $%s",value);}
-      else {session.send("You have no balance due.");}
+      session.send("You owe a total of: $%s to the University for this term",value);}
+      else {session.send("You have no balance due for this term.");}
   });
   session.endDialog();
   }
@@ -245,7 +290,6 @@ bot.dialog('accountsDialog', (session, args, next) => {
 
 //Handling the class enrollment intents
 bot.dialog('enrollDialog', (session, args, next) => {
-  var suid = lookup_session_suid(session);
   //session.send('You reached the %s intent. You said \'%s\'.', args.intent.intent, session.message.text);
   var course = builder.EntityRecognizer.findEntity(args.intent.entities, 'course');
   course = course ? course.entity : null;
