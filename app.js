@@ -305,37 +305,44 @@ bot.dialog('enrollDialog', (session, args, next) => {
     });
   }
 
-      /*
-      if (!course) {
-        session.send("Sorry, I don't know which course you want to enroll in.");
-      }
-      else {
-        var errfunc = function(err) {
-          session.send(`sql error: ${err}`);
-        }*/
+  else if(!course) {
+    session.send("Sorry, I didn't understand. Can you please try again?");
+  }
+
+  else if(course == 'courses' || course == 'registrations') {
+    session.send("Your current registrations are:\n")
+    queryDatabase(`select concat(A.CourseID,' - ', B.coursetitle) as registered from StudentEnrolledCourses A, Courses B where A.courseid = B.courseid and A.SUID=${suid} and A.status='E'`, function(value) {
+      session.send(value);
+    });
+  }
+
 
   else {
     course = course.toUpperCase();
     queryDatabase(`SELECT COUNT(*) FROM Courses WHERE courseid='${course}'`, function(value) {
-      console.log(`courses found with this course id = ${value}`);
+      console.log(`courses found with ${course} are ${value}`);
 
       if(value == 0) {
         session.send(`No course found named "${course}"`);
       }
 
       else if(value == 1) {
-        //session.send(`Enrolling you in "${course}"...`);
-        queryDatabase(`SELECT Capacity-EnrollCount FROM Courses WHERE courseid='${course} where DATEPART(quarter, term) = DATEPART(quarter, GETDATE()) +1'`, function(value) {
+        session.send("Checking for the seat availability.....");
+        queryDatabase(`SELECT Capacity-EnrollCount FROM Courses WHERE courseid='${course}' and DATEPART(quarter, term) = DATEPART(quarter, GETDATE()) +1`, function(value) {
           console.log(`capacity - enrollment = ${value}`);
           if (value == 0) {
             session.send("Sorry this class is full for the term.");
           }
           else {
-            queryDatabase(`UPDATE Courses SET EnrollCount = EnrollCount + 1 WHERE courseid='${course}'`, function(value) {}, errfunc);
-            //queryDatabase(`INSERT INTO StudentEnrolledCourses (CourseID) VALUES ('${course}')`, function(value) {}, errfunc);
-            session.send(`You are now enrolled in ${course}.`);
+            console.log("updating the Courses table.");
+            session.send("%s seat(s) are available at this time.", value);
+            queryDatabase(`UPDATE Courses SET EnrollCount = EnrollCount + 1 WHERE courseid='${course}'`, function(value) {
+            });
+            queryDatabase(`INSERT INTO StudentEnrolledCourses (seqid, SUID, CourseID, status) VALUES (2,${suid},'${course}','E' )`, function(value) {
+            });
+            session.send(`Congratulations! You are now enrolled in ${course}.`);
           }
-        }, errfunc);      //end of  inner queryDatabase
+        });      //end of  inner queryDatabase
       }
     });                   //end of outer queryDatabase
   }                       // end of else
