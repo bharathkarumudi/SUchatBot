@@ -255,7 +255,7 @@ bot.dialog('updateProfile', [ function (session, args) {
           }
 
           else if (profile_field == 'phone'){
-            queryDatabase(`UPDATE StudentProfile SET phone = '${results.response}' WHERE suid =${suid}`, function(value) {
+            queryDatabase(`UPDATE StudentProfile SET phone = '${results.response}' WHERE suid=${suid}`, function(value) {
             });
           }
 
@@ -275,14 +275,18 @@ bot.dialog('accountsDialog', (session, args, next) => {
   var accounts = builder.EntityRecognizer.findEntity(intent.entities, 'accounts');
   accounts = accounts ? accounts.entity : null;
 
-  if (accounts == 'owe' || accounts == 'due') {
-    queryDatabase(`select distinct(termfee) - sum(Paidamount)  from Accounts where SUID=2 and DATEPART(quarter, paiddate) = DATEPART(quarter, GETDATE()) group by termfee`, function(value) {
+  if(accounts == 'owe' || accounts == 'due') {
+    queryDatabase(`select distinct(termfee) - sum(Paidamount)  from Accounts where SUID=${suid} and DATEPART(quarter, paiddate) = DATEPART(quarter, GETDATE()) group by termfee`, function(value) {
       if (value > 0) {
-      session.send("You owe a total of: $%s to the University for this term",value);}
-      else {session.send("You have no balance due for this term.");}
-  });
-  session.endDialog();
+      session.send("You owe a total of: $%s to the University for this term.",value);}
+      else
+        session.send("You have no balance due for this term.");
+    });
+    session.endDialog();
   }
+
+  else
+    session.send("Sorry, I didn't understand. Can you please try again?");
 }).triggerAction({
   matches: 'accounts'
 });
@@ -290,39 +294,51 @@ bot.dialog('accountsDialog', (session, args, next) => {
 
 //Handling the class enrollment intents
 bot.dialog('enrollDialog', (session, args, next) => {
-  //session.send('You reached the %s intent. You said \'%s\'.', args.intent.intent, session.message.text);
+
   var course = builder.EntityRecognizer.findEntity(args.intent.entities, 'course');
   course = course ? course.entity : null;
 
-  if (!course) {
-    session.send("Sorry, I don't know which course you want to enroll in.");
+  if (course == 'available' || course == 'available courses' || course == 'offerings') {         //displays available courses
+    queryDatabase(`select courseid, coursetitle from courses where DATEPART(quarter, term) = DATEPART(quarter, GETDATE()) +1 `, function(value) {
+      session.send(value);
+      session.endDialog();
+    });
   }
+
+      /*
+      if (!course) {
+        session.send("Sorry, I don't know which course you want to enroll in.");
+      }
+      else {
+        var errfunc = function(err) {
+          session.send(`sql error: ${err}`);
+        }*/
+
   else {
-    var errfunc = function(err) {
-      session.send(`sql error: ${err}`);
-    }
     course = course.toUpperCase();
     queryDatabase(`SELECT COUNT(*) FROM Courses WHERE courseid='${course}'`, function(value) {
-      session.send(`courses found with this course id = ${value}`);
+      console.log(`courses found with this course id = ${value}`);
+
       if(value == 0) {
         session.send(`No course found named "${course}"`);
       }
-      else {
-        session.send(`Enrolling you in "${course}"...`);
-        queryDatabase(`SELECT Capacity-EnrollCount FROM Courses WHERE courseid='${course}'`, function(value) {
-          session.send(`capacity - enrollment = ${value}`);
+
+      else if(value == 1) {
+        //session.send(`Enrolling you in "${course}"...`);
+        queryDatabase(`SELECT Capacity-EnrollCount FROM Courses WHERE courseid='${course} where DATEPART(quarter, term) = DATEPART(quarter, GETDATE()) +1'`, function(value) {
+          console.log(`capacity - enrollment = ${value}`);
           if (value == 0) {
-            session.send("Sorry this class is full");
+            session.send("Sorry this class is full for the term.");
           }
           else {
             queryDatabase(`UPDATE Courses SET EnrollCount = EnrollCount + 1 WHERE courseid='${course}'`, function(value) {}, errfunc);
-            queryDatabase(`INSERT INTO StudentEnrolledCourses (CourseID) VALUES ('${course}')`, function(value) {}, errfunc);
-            session.send(`You are now enrolled in ${course}`);
+            //queryDatabase(`INSERT INTO StudentEnrolledCourses (CourseID) VALUES ('${course}')`, function(value) {}, errfunc);
+            session.send(`You are now enrolled in ${course}.`);
           }
-        }, errfunc);
+        }, errfunc);      //end of  inner queryDatabase
       }
-    });
-  }
+    });                   //end of outer queryDatabase
+  }                       // end of else
 }).triggerAction({
   matches: 'enroll'
 });
