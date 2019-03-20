@@ -1,37 +1,42 @@
-CREATE TABLE [Students] (
+CREATE TABLE [StudentProfile] (
 	SUid integer NOT NULL,
-	FName varchar(20) NOT NULL,
-	LName varchar(20) NOT NULL,
+	FirstName varchar(20) NOT NULL,
+	LastName varchar(20) NOT NULL,
 	ProgramName varchar(50) NOT NULL,
 	Email varchar(50) NOT NULL,
-	Address Line varchar(100) NOT NULL,
-	City varchar(30) NOT NULL,
-	State varchar(30) NOT NULL,
-	Zip varchar(5) NOT NULL,
-	ClassMode varchar(1) NOT NULL,
-  CONSTRAINT [PK_STUDENTS] PRIMARY KEY CLUSTERED
+	AddressLine varchar(100) NOT NULL,
+	StateCode varchar(2) NOT NULL,
+	ClassMode varchar(10) NOT NULL,
+	Phone varchar(15) NOT NULL,
+  CONSTRAINT [PK_STUDENTPROFILE] PRIMARY KEY CLUSTERED
   (
   [SUid] ASC
   ) WITH (IGNORE_DUP_KEY = OFF)
 
 )
 GO
-CREATE TABLE [Courses] (
+CREATE TABLE [AvailableCourses] (
+	SeqID integer IDENTITY(1,1) NOT NULL,
 	CourseID varchar(10) NOT NULL,
 	CourseTitle varchar(30) NOT NULL,
-	EnrollCount integer NOT NULL,
-  CONSTRAINT [PK_COURSES] PRIMARY KEY CLUSTERED
+	ClassScheduleDay varchar(3) NOT NULL,
+	ClassSchedule varchar(10) NOT NULL,
+	ExamSchedule date NOT NULL,
+	Term date NOT NULL,
+	EnrolledCount integer NOT NULL,
+  CONSTRAINT [PK_AVAILABLECOURSES] PRIMARY KEY CLUSTERED
   (
-  [CourseID] ASC
+  [SeqID] ASC
   ) WITH (IGNORE_DUP_KEY = OFF)
 
 )
 GO
 CREATE TABLE [StudentEnrolledCourses] (
-	SeqID integer NOT NULL,
+	SeqID integer  IDENTITY(1,1) NOT NULL,
 	SUid integer NOT NULL,
 	CourseID varchar(10) NOT NULL,
 	Status varchar(1) NOT NULL,
+	EnrolledFor datetime NOT NULL,
   CONSTRAINT [PK_STUDENTENROLLEDCOURSES] PRIMARY KEY CLUSTERED
   (
   [SeqID] ASC
@@ -39,13 +44,23 @@ CREATE TABLE [StudentEnrolledCourses] (
 
 )
 GO
-CREATE TABLE [Accounts] (
-	SeqID integer NOT NULL,
+CREATE TABLE [AccountsInformation] (
+	SeqID integer IDENTITY(1,1) NOT NULL,
 	SUid integer NOT NULL,
 	TermFee decimal NOT NULL,
 	PaidAmount decimal NOT NULL,
 	PaidDate datetime NOT NULL,
-  CONSTRAINT [PK_ACCOUNTS] PRIMARY KEY CLUSTERED
+  CONSTRAINT [PK_ACCOUNTSINFORMATION] PRIMARY KEY CLUSTERED
+  (
+  [SeqID] ASC
+  ) WITH (IGNORE_DUP_KEY = OFF)
+
+)
+GO
+CREATE TABLE [SUFunFacts] (
+	SeqID integer IDENTITY(1,1) NOT NULL,
+	Fact varchar(5000) NOT NULL,
+  CONSTRAINT [PK_SUFUNFACTS] PRIMARY KEY CLUSTERED
   (
   [SeqID] ASC
   ) WITH (IGNORE_DUP_KEY = OFF)
@@ -54,20 +69,19 @@ CREATE TABLE [Accounts] (
 GO
 
 
-ALTER TABLE [StudentEnrolledCourses] WITH CHECK ADD CONSTRAINT [StudentEnrolledCourses_fk0] FOREIGN KEY ([SUid]) REFERENCES [Students]([SUid])
+ALTER TABLE [StudentEnrolledCourses] WITH CHECK ADD CONSTRAINT [StudentEnrolledCourses_fk0] FOREIGN KEY ([SUid]) REFERENCES [StudentProfile]([SUid])
 ON UPDATE CASCADE
 GO
 ALTER TABLE [StudentEnrolledCourses] CHECK CONSTRAINT [StudentEnrolledCourses_fk0]
 GO
-ALTER TABLE [StudentEnrolledCourses] WITH CHECK ADD CONSTRAINT [StudentEnrolledCourses_fk1] FOREIGN KEY ([CourseID]) REFERENCES [Courses]([CourseID])
+ALTER TABLE [StudentEnrolledCourses] WITH CHECK ADD CONSTRAINT [StudentEnrolledCourses_fk1] FOREIGN KEY ([CourseID]) REFERENCES [AvailableCourses]([CourseID])
 ON UPDATE CASCADE
 GO
 ALTER TABLE [StudentEnrolledCourses] CHECK CONSTRAINT [StudentEnrolledCourses_fk1]
 GO
 
-ALTER TABLE [Accounts] WITH CHECK ADD CONSTRAINT [Accounts_fk0] FOREIGN KEY ([SUid]) REFERENCES [Students]([SUid])
+ALTER TABLE [AccountsInformation] WITH CHECK ADD CONSTRAINT [AccountsInformation_fk0] FOREIGN KEY ([SUid]) REFERENCES [StudentProfile]([SUid])
 ON UPDATE CASCADE
 GO
-ALTER TABLE [Accounts] CHECK CONSTRAINT [Accounts_fk0]
+ALTER TABLE [AccountsInformation] CHECK CONSTRAINT [AccountsInformation_fk0]
 GO
-

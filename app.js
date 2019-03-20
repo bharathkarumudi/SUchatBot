@@ -155,7 +155,7 @@ bot.dialog('CancelDialog',
 });
 
 // Handling Profile related Intents
-bot.dialog('profileDialog', (session, args, next) => {
+bot.dialog('profileDialog', (session, args) => {
   var intent = args.intent;
   var profile_field = builder.EntityRecognizer.findEntity(intent.entities, 'profile_field');
   profile_field = profile_field ? profile_field.entity : null;
@@ -167,13 +167,13 @@ bot.dialog('profileDialog', (session, args, next) => {
     }
 
     else if (profile_field == 'first'){
-    queryDatabase(`select FNAME from StudentProfile where SUID=${suid}`, function(value) {
+    queryDatabase(`select FirstName from StudentProfile where SUID=${suid}`, function(value) {
         session.send("Your First name as in records is: %s", value);
     });
     }
 
     else if (profile_field == 'last'){
-    queryDatabase(`select LNAME from StudentProfile where SUID=${suid}`, function(value) {
+    queryDatabase(`select LastName from StudentProfile where SUID=${suid}`, function(value) {
         session.send("Your Last Name as in records is: %s", value);
     });
     }
@@ -191,13 +191,13 @@ bot.dialog('profileDialog', (session, args, next) => {
     }
 
     else if (profile_field == 'complete profile' || profile_field == 'profile'){
-    queryMulColumns(`select FNAME,  LNAME, ProgramName, Email, AddressLine, phone, ClassMode from StudentProfile where SUID=${suid}`, function(student) {
+    queryMulColumns(`select FirstName,  LastName, ProgramName, Email, AddressLine, phone, ClassMode from StudentProfile where SUID=${suid}`, function(student) {
 
      var firstName, lastName, pgmName, email, address, classMode, phone;
      student.forEach(function(column) {
-        if (column.metadata.colName == 'FNAME')
+        if (column.metadata.colName == 'FirstName')
             firstName = column.value;
-            else if (column.metadata.colName == 'LNAME')
+            else if (column.metadata.colName == 'LastName')
             lastName = column.value;
             else if (column.metadata.colName == 'ProgramName')
             pgmName = column.value;
@@ -270,13 +270,13 @@ bot.dialog('updateProfile', [ function (session, args) {
 
 
 //Handling the accounts intents
-bot.dialog('accountsDialog', (session, args, next) => {
+bot.dialog('accountsDialog', (session, args) => {
   var intent = args.intent;
   var accounts = builder.EntityRecognizer.findEntity(intent.entities, 'accounts');
   accounts = accounts ? accounts.entity : null;
 
   if(accounts == 'owe' || accounts == 'due') {
-    queryDatabase(`select distinct(termfee) - sum(Paidamount)  from Accounts where SUID=${suid} and DATEPART(quarter, paiddate) = DATEPART(quarter, GETDATE()) group by termfee`, function(value) {
+    queryDatabase(`select distinct(termfee) - sum(Paidamount)  from AccountsInformation where SUID=${suid} and DATEPART(quarter, paiddate) = DATEPART(quarter, GETDATE()) group by termfee`, function(value) {
       if (value > 0) {
       session.send("You owe a total of: $%s to the University for this term.",value);}
       else
@@ -293,13 +293,13 @@ bot.dialog('accountsDialog', (session, args, next) => {
 
 
 //Handling the class enrollment intents
-bot.dialog('enrollDialog', (session, args, next) => {
+bot.dialog('enrollDialog', (session, args) => {
 
   var course = builder.EntityRecognizer.findEntity(args.intent.entities, 'course');
   course = course ? course.entity : null;
 
   if (course == 'available' || course == 'available courses' || course == 'offerings') {         //displays available courses
-    queryDatabase(`select courseid, coursetitle from courses where DATEPART(quarter, term) = DATEPART(quarter, GETDATE()) +1 `, function(value) {
+    queryDatabase(`select courseid, coursetitle from AvailableCourses where DATEPART(quarter, term) = DATEPART(quarter, GETDATE()) +1 `, function(value) {
       session.send(value);
       session.endDialog();
     });
@@ -311,15 +311,14 @@ bot.dialog('enrollDialog', (session, args, next) => {
 
   else if(course == 'courses' || course == 'registrations') {
     session.send("Your current registrations are:\n")
-    queryDatabase(`select concat(A.CourseID,' - ', B.coursetitle) as registered from StudentEnrolledCourses A, Courses B where A.courseid = B.courseid and A.SUID=${suid} and A.status='E'`, function(value) {
+    queryDatabase(`select concat(A.CourseID,' - ', B.coursetitle) as registered from StudentEnrolledCourses A, AvailableCourses B where A.courseid = B.courseid and A.SUID=${suid} and A.status='E'`, function(value) {
       session.send(value);
     });
   }
 
-
   else {
     course = course.toUpperCase();
-    queryDatabase(`SELECT COUNT(*) FROM Courses WHERE courseid='${course}'`, function(value) {
+    queryDatabase(`SELECT COUNT(*) FROM AvailableCourses WHERE courseid='${course}'`, function(value) {
       console.log(`courses found with ${course} are ${value}`);
 
       if(value == 0) {
@@ -328,7 +327,7 @@ bot.dialog('enrollDialog', (session, args, next) => {
 
       else if(value == 1) {
         session.send("Checking for the seat availability.....");
-        queryDatabase(`SELECT Capacity-EnrollCount FROM Courses WHERE courseid='${course}' and DATEPART(quarter, term) = DATEPART(quarter, GETDATE()) +1`, function(value) {
+        queryDatabase(`SELECT Capacity-EnrolledCount FROM AvailableCourses WHERE courseid='${course}' and DATEPART(quarter, term) = DATEPART(quarter, GETDATE()) +1`, function(value) {
           console.log(`capacity - enrollment = ${value}`);
           if (value == 0) {
             session.send("Sorry this class is full for the term.");
@@ -336,9 +335,9 @@ bot.dialog('enrollDialog', (session, args, next) => {
           else {
             console.log("updating the Courses table.");
             session.send("%s seat(s) are available at this time.", value);
-            queryDatabase(`UPDATE Courses SET EnrollCount = EnrollCount + 1 WHERE courseid='${course}'`, function(value) {
+            queryDatabase(`UPDATE AvailableCourses SET EnrolledCount = EnrolledCount + 1 WHERE courseid='${course}'`, function(value) {
             });
-            queryDatabase(`INSERT INTO StudentEnrolledCourses (seqid, SUID, CourseID, status) VALUES (2,${suid},'${course}','E' )`, function(value) {
+            queryDatabase(`INSERT INTO StudentEnrolledCourses (SUID, CourseID, status, EnrolledFor) VALUES (${suid},'${course}','E',DATEPART(quarter, GETDATE()) +1 )`, function(value) {
             });
             session.send(`Congratulations! You are now enrolled in ${course}.`);
           }
@@ -350,29 +349,29 @@ bot.dialog('enrollDialog', (session, args, next) => {
   matches: 'enroll'
 });
 
-/*
+
 bot.dialog('scheduleDialog', (session, args) => {
- // var userMessage = session.message.text;
-  var suid = lookup_session_suid(session);
-  session.send('You reached the check the schedule intent');
-  var intent = args.intent;
-  var schedule = builder.EntityRecognizer.findEntity(intent.entities, 'schedule');
-  //if (userMessage.toLowerCase().indexOf('class') >=0 ) {
-  if (schedule == 'class'){
+
+  var schedule_field = builder.EntityRecognizer.findEntity(args.intent.entities, 'schedule_field');
+  schedule_field = schedule_field ? schedule_field.entity : null;
+  console.log(schedule_field);
+
+  if (schedule_field == 'class'){
     session.send("Your class schedule:");
-    queryDatabase("select CourseTitle, ScheduleDay from Courses where CourseID in (select CourseID from StudentEnrolledCourses where SUid = 1)", function(value) {
+    queryDatabase(`select CourseTitle, classScheduleDay from AvailableCourses where CourseID in (select CourseID from StudentEnrolledCourses where suid=${suid})`, function(value) {
       session.send(value);
-  });
-  else if (schedule == 'exam'){
+  });}
+  else if (schedule_field == 'exam'){
     session.send("Your exam schedule:");
-    queryDatabase("select CourseTitle, ScheduleDay from Courses where CourseID in (select CourseID from StudentEnrolledCourses where SUid = 1)", function(value) {
+    queryDatabase(`select CourseTitle, examSchedule from AvailableCourses where CourseID in (select CourseID from StudentEnrolledCourses where suid=${suid})`, function(value) {
       session.send(value);
   //session.endDialog();
-  }
+  });}
+
 }).triggerAction({
   matches: 'check_schedule'
 });
-*/
+
 
 bot.dialog('debugDialog', (session) => {
   // This intent for debugging only. TODO: hide from users.
