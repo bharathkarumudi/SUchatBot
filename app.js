@@ -276,7 +276,7 @@ bot.dialog('accountsDialog', (session, args) => {
   accounts = accounts ? accounts.entity : null;
 
   if(accounts == 'owe' || accounts == 'due') {
-    queryDatabase(`select distinct(termfee) - sum(Paidamount)  from AccountsInformation where SUID=${suid} and DATEPART(quarter, paiddate) = DATEPART(quarter, GETDATE()) group by termfee`, function(value) {
+    queryDatabase(`select distinct(termfee) - sum(Paidamount)  from AccountsInformation where SUID=${suid} and DATEPART(quarter, paiddate) = DATEPART(quarter, GETDATE()) and DATEPART(year, paiddate) = YEAR(GETDATE()) group by termfee`, function(value) {
       if (value > 0) {
       session.send("You owe a total of: $%s to the University for this term.",value);}
       else
@@ -299,87 +299,86 @@ bot.dialog('enrollDialog', (session, args) => {
   course = course ? course.entity : null;
 
   if (course == 'available' || course == 'available courses' || course == 'offerings') {         //displays available courses
-    queryDatabase(`select courseid, coursetitle from AvailableCourses where DATEPART(quarter, term) = DATEPART(quarter, GETDATE()) +1 `, function(value) {
+    session.send("Below are the list of available courses for the upcoming term:\n");
+    queryDatabase(`select concat(courseid, ' - ',coursetitle, ' on ',ClassScheduleDay, ' at ', ClassSchedule) as AvailableCourse from AvailableCourses where DATEPART(quarter, term) = DATEPART(quarter, GETDATE()) +1 `, function(value) {
       session.send(value);
       session.endDialog();
     });
   }
 
   else if(!course) {
-    session.send("Sorry, I didn't understand. Can you please try again?");
+    session.send("Sorry, I didn't understand. Please provide correct information.");
   }
 
-  else if(course == 'courses' || course == 'registrations') {
-    session.send("Your current registrations are:\n")
-    queryDatabase(`select concat(A.CourseID,' - ', B.coursetitle) as registered from StudentEnrolledCourses A, AvailableCourses B where A.courseid = B.courseid and A.SUID=${suid} and A.status='E'`, function(value) {
-      session.send(value);
+  else if(course == 'courses' || course == 'registrations') {                                   //List student registrations
+
+    queryDatabase(`select concat(A.CourseID,' - ', B.coursetitle) as registered from StudentEnrolledCourses A, AvailableCourses B where A.courseid = B.courseid and A.SUID=${suid} and A.status='E'`, function(registered, rowcount) {
+    session.send(registered);
+
+    /*  console.log("rowcount is %s", rowcount);
+      if (registered)
+        session.send(registered);
+      else
+        session.send("You have no registrations."); */
     });
   }
 
-  else {
+  else {                                                                                      //New Enrollment process
     course = course.toUpperCase();
     queryDatabase(`SELECT COUNT(*) FROM AvailableCourses WHERE courseid='${course}'`, function(value) {
-      console.log(`courses found with ${course} are ${value}`);
 
       if(value == 0) {
-        session.send(`No course found named "${course}"`);
+        session.send(`No course found named with the ID "${course}"`);
       }
 
       else if(value == 1) {
         session.send("Checking for the seat availability.....");
-        queryDatabase(`SELECT Capacity-EnrolledCount FROM AvailableCourses WHERE courseid='${course}' and DATEPART(quarter, term) = DATEPART(quarter, GETDATE()) +1`, function(value) {
-          console.log(`capacity - enrollment = ${value}`);
-          if (value == 0) {
+        queryDatabase(`SELECT Capacity-EnrolledCount FROM AvailableCourses WHERE courseid='${course}' and DATEPART(quarter, term) = DATEPART(quarter, GETDATE()) +1`, function(availableSeats) {
+          if (availableSeats == 0) {
             session.send("Sorry this class is full for the term.");
           }
-          else {
-            console.log("updating the Courses table.");
-            session.send("%s seat(s) are available at this time.", value);
-            queryDatabase(`UPDATE AvailableCourses SET EnrolledCount = EnrolledCount + 1 WHERE courseid='${course}'`, function(value) {
-            });
-            queryDatabase(`INSERT INTO StudentEnrolledCourses (SUID, CourseID, status, EnrolledFor) VALUES (${suid},'${course}','E',DATEPART(quarter, GETDATE()) +1 )`, function(value) {
-            });
-            session.send(`Congratulations! You are now enrolled in ${course}.`);
+          else {                // Check if this student has already enrolled in this course
+
+            queryDatabase(`SELECT count(*) FROM studentEnrolledCourses WHERE courseid='${course}' AND SUID=${suid}`, function(courseEnrolledCount) {
+                if(courseEnrolledCount > 0) {
+                  session.send("You have already enrolled in this course.");
+                }
+
+                else {          // Class enrollment
+                    session.send("%s seat(s) are available at this time.", availableSeats);
+                    queryDatabase(`UPDATE AvailableCourses SET EnrolledCount = EnrolledCount + 1 WHERE courseid='${course}'`, function(value) {});
+                    queryDatabase(`INSERT INTO StudentEnrolledCourses (SUID, CourseID, status, EnrolledFor) VALUES (${suid},'${course}','E',DATEPART(quarter, GETDATE()) +1 )`, function(value) {});
+                    session.send(`Congratulations! You are now enrolled in ${course}.`);
+                }
+            });                // end of the queryDatebase which checks if enrolled already
           }
-        });      //end of  inner queryDatabase
+        });                   //end of  inner queryDatabase
       }
-    });                   //end of outer queryDatabase
-  }                       // end of else
+    });                      //end of outer queryDatabase
+  }                         // end of else
 }).triggerAction({
   matches: 'enroll'
 });
-
 
 bot.dialog('scheduleDialog', (session, args) => {
 
   var schedule_field = builder.EntityRecognizer.findEntity(args.intent.entities, 'schedule_field');
   schedule_field = schedule_field ? schedule_field.entity : null;
-  console.log(schedule_field);
 
   if (schedule_field == 'class'){
     session.send("Your class schedule:");
-    queryDatabase(`select CourseTitle, classScheduleDay from AvailableCourses where CourseID in (select CourseID from StudentEnrolledCourses where suid=${suid})`, function(value) {
-      session.send(value);
-  });}
+    queryDatabase(`select concat(coursetitle, ' on ',ClassScheduleDay, ' at ', ClassSchedule) as classSchedule from AvailableCourses where CourseID in (select CourseID from StudentEnrolledCourses where suid=${suid})`, function(classSchedule) {
+      session.send(classSchedule);
+    });
+  }
+
   else if (schedule_field == 'exam'){
     session.send("Your exam schedule:");
-    queryDatabase(`select CourseTitle, examSchedule from AvailableCourses where CourseID in (select CourseID from StudentEnrolledCourses where suid=${suid})`, function(value) {
+    queryDatabase(`select concat( CourseTitle, ' on ', convert(varchar(255), examSchedule, 121) ) from AvailableCourses where CourseID in (select CourseID from StudentEnrolledCourses where suid=${suid})`, function(value) {
       session.send(value);
-  //session.endDialog();
-  });}
+    });
+  }
 
 }).triggerAction({
   matches: 'check_schedule'
-});
-
-
-bot.dialog('debugDialog', (session) => {
-  // This intent for debugging only. TODO: hide from users.
-  var suid = lookup_session_suid(session);
-  session.send(`suid = ${suid}`);
-  var session_info = util.inspect(session);
-  session.send(`session = ${session_info}`);
-  session.endDialog();
-}).triggerAction({
-  matches: 'Debug'
 });
