@@ -1,6 +1,6 @@
 # Syracuse Chatbot - A Bot for Syracuse University Students
 
-[![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)]
+![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)
 
 Syracuse Chatbot is an AI Chatbot that receives questions from users, tries to understand the question, and provides appropriate answers. The application does this by converting an English sentence into a machine-friendly query, then going through relevant data to find the necessary information, and finally returning the answer in a natural language sentence. In other words, it answers your questions like a human.
 
