@@ -12,12 +12,6 @@ var Connection = Tedious.Connection;
 var Request = Tedious.Request;
 var util = require('util');
 
-function lookup_session_suid(session) {
-    // TODO replace hardcoded SUID with a lookup from Facebook or Slack identity
-
-    return 2;
-}
-
 
 // Setup Restify Server
 var server = restify.createServer();
@@ -113,18 +107,51 @@ function queryMulColumns(query, callback, errcallback=null) {
     connection.execSql(requestmulCol);
   });
 }
+/* global suid */
+var suid = 0;
+
+/*
+function lookup_session_suid(sessionID) {
+   var slackId = sessionID;
+   queryDatabase(`select suid from studentprofile where SlackUserID = '${slackId}'`, function(studentID) {
+    suid=studentID;
+    console.log("suid in func ------>", suid);
+  });
+}*/
+
+/*
+bot.use({
+ botbuilder: async function (session, next) {
+           console.log("session user name------",session.message.address.user.name);
+           console.log("session user id ------",session.message.address.user.id);
+           console.log("su id before ---------",suid);
+           lookup_session_suid(session.message.address.user.id);
+           var slackId=session.message.address.user.id;
+           await queryDatabase(`select suid from studentprofile where SlackUserID = '${slackId}'`, function(studentID) {
+              suid=studentID;
+              console.log("su id after query exec ----------", suid);
+            });
+
+           console.log("su id after ----------", suid);
+ }
+}); */
 
 //var suid = lookup_session_suid(session);
-suid = 2;
+//suid = 2;
+console.log("suid is ------>", suid);
 
 // Handling Greeting Intents
 bot.dialog('GreetingDialog',
     (session) => {
-        //session.send('You reached the Greeting intent. You said \'%s\'.', session.message.text);
-        queryDatabase(`select TOP 1 Fact from SUFunFacts order by newid()`, function(value) {
-          session.send("Hello, Welcome to Syracuse University! I am a bot and here to help you!\n\nDid you know?\n %s \n\n", value);
-          session.endDialog();
-        });
+      var slackId=session.message.address.user.id;
+      queryDatabase(`select suid from studentprofile where SlackUserID = '${slackId}'`, function(studentID) {
+        suid=studentID;
+       });
+
+       queryDatabase(`select TOP 1 Fact from SUFunFacts order by newid()`, function(value) {
+        session.send("Hello, Welcome to Syracuse University! I am a bot and here to help you!\n\nDid you know?\n %s \n\n", value);
+        session.endDialog();
+       });
     }
     ).triggerAction({
     matches: 'Greeting'
@@ -156,6 +183,7 @@ bot.dialog('CancelDialog',
 
 // Handling Profile related Intents
 bot.dialog('profileDialog', (session, args) => {
+  //console.log("Debug: the su id in profile:" , suid);
   var intent = args.intent;
   var profile_field = builder.EntityRecognizer.findEntity(intent.entities, 'profile_field');
   profile_field = profile_field ? profile_field.entity : null;
@@ -261,6 +289,7 @@ bot.dialog('updateProfile', [ function (session, args) {
 
           else {
             session.send("Sorry! you are not authorized to change it.");
+
           }
 
         session.send(`Your ${profile_field} has been updated to ${results.response}`);
@@ -294,7 +323,7 @@ bot.dialog('accountsDialog', (session, args) => {
 
 //Handling the class enrollment intents
 bot.dialog('enrollDialog', (session, args) => {
-
+  var intent = args.intent;
   var course = builder.EntityRecognizer.findEntity(args.intent.entities, 'course');
   course = course ? course.entity : null;
 
@@ -364,6 +393,7 @@ bot.dialog('enrollDialog', (session, args) => {
 }).triggerAction({
   matches: 'enroll'
 });
+
 
 bot.dialog('scheduleDialog', (session, args) => {
 
