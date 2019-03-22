@@ -312,14 +312,19 @@ bot.dialog('enrollDialog', (session, args) => {
 
   else if(course == 'courses' || course == 'registrations') {                                   //List student registrations
 
-    queryDatabase(`select concat(A.CourseID,' - ', B.coursetitle) as registered from StudentEnrolledCourses A, AvailableCourses B where A.courseid = B.courseid and A.SUID=${suid} and A.status='E'`, function(registered, rowcount) {
-    session.send(registered);
-
-    /*  console.log("rowcount is %s", rowcount);
-      if (registered)
+    queryDatabase(`select count(*) as count from StudentEnrolledCourses A, AvailableCourses B where A.courseid = B.courseid and A.SUID=${suid} and A.status='E'`, function(regCount) {
+      console.log(regCount);
+      if(regCount > 0) {
+        session.send("Below are the registered courses:\n");
+        queryDatabase(`select concat(A.CourseID,' - ', B.coursetitle) as registered from StudentEnrolledCourses A, AvailableCourses B where A.courseid = B.courseid and A.SUID=${suid} and A.status='E'`, function(registered, rowcount) {
         session.send(registered);
-      else
-        session.send("You have no registrations."); */
+        });
+      }
+
+      else if(regCount == 0) {
+        session.send("You have no registrations!");
+      }
+
     });
   }
 
