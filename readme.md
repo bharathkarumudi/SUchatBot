@@ -26,8 +26,6 @@ Syracuse Chatbot shall be able to query on:
 * Azure Bot service
 * node.js
 
-End with an example of getting some data out of the system or using it for a little demo
-
 ## Running the tests
 
 You can interact with the bot at  [Web interface](https://webchat.botframework.com/embed/CuseBots?s=YnHKNEIX7K0.ND7kctEA0qrZoLX45aWZ_mwmCIen9co6-QmnhTpYALM) and ask questions like:
@@ -52,7 +50,7 @@ The application has a pipeline created with code base as Github. Once the code i
 
 ## Versioning
 
-We use [Git](http://github.com/) for versioning.
+* Used [Git](http://github.com/) for versioning.
 
 ## Authors
 
