@@ -16,9 +16,9 @@ Information extraction - capable of finding information available from the datab
 
 # Product Functions
 Syracuse Chatbot shall be able to query on:
-•	Student profile information
-•	Classes and schedules
-•	Payment information
+*	Student profile information
+*	Classes and schedules
+*	Payment information
 
 ### Prerequisites
 
