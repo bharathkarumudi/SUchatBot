@@ -5,9 +5,9 @@ CREATE TABLE [StudentProfile] (
 	ProgramName varchar(50) NOT NULL,
 	Email varchar(50) NOT NULL,
 	AddressLine varchar(100) NOT NULL,
-	StateCode varchar(2) NOT NULL,
 	ClassMode varchar(10) NOT NULL,
 	Phone varchar(15) NOT NULL,
+	SlackID varchar(50) NOT NULL UNIQUE,
   CONSTRAINT [PK_STUDENTPROFILE] PRIMARY KEY CLUSTERED
   (
   [SUid] ASC
@@ -16,7 +16,7 @@ CREATE TABLE [StudentProfile] (
 )
 GO
 CREATE TABLE [AvailableCourses] (
-	SeqID integer IDENTITY(1,1) NOT NULL,
+	SeqID integer NOT NULL,
 	CourseID varchar(10) NOT NULL,
 	CourseTitle varchar(30) NOT NULL,
 	ClassScheduleDay varchar(3) NOT NULL,
@@ -24,6 +24,7 @@ CREATE TABLE [AvailableCourses] (
 	ExamSchedule date NOT NULL,
 	Term date NOT NULL,
 	EnrolledCount integer NOT NULL,
+	Capacity integer NOT NULL,
   CONSTRAINT [PK_AVAILABLECOURSES] PRIMARY KEY CLUSTERED
   (
   [SeqID] ASC
@@ -32,7 +33,7 @@ CREATE TABLE [AvailableCourses] (
 )
 GO
 CREATE TABLE [StudentEnrolledCourses] (
-	SeqID integer  IDENTITY(1,1) NOT NULL,
+	SeqID integer NOT NULL,
 	SUid integer NOT NULL,
 	CourseID varchar(10) NOT NULL,
 	Status varchar(1) NOT NULL,
@@ -45,7 +46,7 @@ CREATE TABLE [StudentEnrolledCourses] (
 )
 GO
 CREATE TABLE [AccountsInformation] (
-	SeqID integer IDENTITY(1,1) NOT NULL,
+	SeqID integer NOT NULL,
 	SUid integer NOT NULL,
 	TermFee decimal NOT NULL,
 	PaidAmount decimal NOT NULL,
@@ -58,7 +59,7 @@ CREATE TABLE [AccountsInformation] (
 )
 GO
 CREATE TABLE [SUFunFacts] (
-	SeqID integer IDENTITY(1,1) NOT NULL,
+	SeqID integer NOT NULL,
 	Fact varchar(5000) NOT NULL,
   CONSTRAINT [PK_SUFUNFACTS] PRIMARY KEY CLUSTERED
   (
@@ -85,3 +86,5 @@ ON UPDATE CASCADE
 GO
 ALTER TABLE [AccountsInformation] CHECK CONSTRAINT [AccountsInformation_fk0]
 GO
+
+

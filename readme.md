@@ -32,7 +32,7 @@ End with an example of getting some data out of the system or using it for a lit
 
 You can interact with the bot at  [Web interface](https://webchat.botframework.com/embed/CuseBots?s=YnHKNEIX7K0.ND7kctEA0qrZoLX45aWZ_mwmCIen9co6-QmnhTpYALM) and ask questions like:
 * Hello
-* Show my complete profile
+* Show my profile
 * Show my address
 * update my email address
 * How much I owe
@@ -58,6 +58,26 @@ We use [Git](http://github.com/) for versioning.
 
 * **Bharath Karumudi** - *Initial work*
 * **Haixin Chang** - *Initial work*
+
+## Future Release and System Evolution
+
+*	Scheduling the appointments with Professors and Student Advisors.
+*	Submitting the assignments through bots.
+*	Integrating Orange Alert system to alert Syracuse Students and Staff.
+*	Paying the term fee and other balances.
+*	Booking the conference rooms.
+*	Displaying the grades and GPAs.
+*	Sending the notifications like grade availability, course access.
+*	Submitting the course surveys.
+*	Shopping the text books from University library.
+*	Placing an order in University Cafeteria for a coffee or any other food.
+*	Providing general information like Address and other knowledge base information using QnA maker.
+*	Integrating with University services over APIs.
+*	Integrating with Voice Assistants like Alexa, Cortana, Siri and Google Home.
+
+# Documentation
+
+* System Requirement Specification Document is available under Documentation directory.
 
 ## License
 

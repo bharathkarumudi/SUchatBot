@@ -196,33 +196,33 @@ bot.dialog('profileDialog', (session, args) => {
   profile_field = profile_field ? profile_field.entity : null;
 
   if (profile_field == 'email') {
-    queryDatabase(`select Email from StudentProfile where SUID=${suid}`, function(value) {
-        session.send("Your Email in records is: %s",value);
+    queryDatabase(`select Email from StudentProfile where SUID=${suid}`, function(email_cb) {
+        session.send("Your Email in records is: %s",email_cb);
     });
     }
 
     else if (profile_field == 'first name'){
       console.log("Debug: the su id in profile:" , suid);
-    queryDatabase(`select FirstName from StudentProfile where SUID=${suid}`, function(value) {
-        session.send("Your First name as in records is: %s", value);
+    queryDatabase(`select FirstName from StudentProfile where SUID=${suid}`, function(firstName_cb) {
+        session.send("Your First name as in records is: %s", firstName_cb);
     });
     }
 
     else if (profile_field == 'last name'){
-    queryDatabase(`select LastName from StudentProfile where SUID=${suid}`, function(value) {
-        session.send("Your Last Name as in records is: %s", value);
+    queryDatabase(`select LastName from StudentProfile where SUID=${suid}`, function(lastName_cb) {
+        session.send("Your Last Name as in records is: %s", lastName_cb);
     });
     }
 
     else if (profile_field == 'address'){
-    queryDatabase(`select ADDRESSLINE from StudentProfile where SUID=${suid}`, function(value) {
-      session.send("Your address as in records is:\n %s", value);
+    queryDatabase(`select ADDRESSLINE from StudentProfile where SUID=${suid}`, function(address_cb) {
+      session.send("Your address as in records is:\n %s", address_cb);
     });
     }
 
     else if (profile_field == 'phone'){
-    queryDatabase(`select PHONE from StudentProfile where SUID=${suid}`, function(value) {
-      session.send("Your phone number as in records is: %s", value);
+    queryDatabase(`select PHONE from StudentProfile where SUID=${suid}`, function(phone_cb) {
+      session.send("Your phone number as in records is: %s", phone_cb);
     });
     }
 
@@ -319,9 +319,9 @@ bot.dialog('accountsDialog', (session, args) => {
   accounts = accounts ? accounts.entity : null;
 
   if(accounts == 'owe' || accounts == 'due') {
-    queryDatabase(`select distinct(termfee) - sum(Paidamount)  from AccountsInformation where SUID=${suid} and DATEPART(quarter, paiddate) = DATEPART(quarter, GETDATE()) and DATEPART(year, paiddate) = YEAR(GETDATE()) group by termfee`, function(value) {
+    queryDatabase(`select distinct(termfee) - sum(Paidamount)  from AccountsInformation where SUID=${suid} and DATEPART(quarter, paiddate) = DATEPART(quarter, GETDATE()) and DATEPART(year, paiddate) = YEAR(GETDATE()) group by termfee`, function(balance_cb) {
       if (value > 0) {
-      session.send("You owe a total of: $%s to the University for this term.",value);}
+      session.send("You owe a total of: $%s to the University for this term.",balance_cb);}
       else
         session.send("You have no balance due for this term.");
     });
@@ -344,8 +344,8 @@ bot.dialog('enrollDialog', (session, args) => {
 
   if (course == 'available' || course == 'available courses' || course == 'offerings') {         //displays available courses
     session.send("Below are the list of available courses for the upcoming term:\n");
-    queryDatabase(`select concat(courseid, ' - ',coursetitle, ' on ',ClassScheduleDay, ' at ', ClassSchedule) as AvailableCourse from AvailableCourses where DATEPART(quarter, term) = DATEPART(quarter, GETDATE()) +1 `, function(value) {
-      session.send(value);
+    queryDatabase(`select concat(courseid, ' - ',coursetitle, ' on ',ClassScheduleDay, ' at ', ClassSchedule) as AvailableCourse from AvailableCourses where DATEPART(quarter, term) = DATEPART(quarter, GETDATE()) +1 `, function(available_cb) {
+      session.send(available_cb);
       session.endDialog();
     });
   }
@@ -360,8 +360,8 @@ bot.dialog('enrollDialog', (session, args) => {
       console.log(regCount);
       if(regCount > 0) {
         session.send("Below are your registered courses:\n");
-        queryDatabase(`select concat(A.CourseID,' - ', B.coursetitle) as registered from StudentEnrolledCourses A, AvailableCourses B where A.courseid = B.courseid and A.SUID=${suid} and A.status='E'`, function(registered, rowcount) {
-        session.send(registered);
+        queryDatabase(`select concat(A.CourseID,' - ', B.coursetitle) as registered from StudentEnrolledCourses A, AvailableCourses B where A.courseid = B.courseid and A.SUID=${suid} and A.status='E'`, function(registered_cb) {
+        session.send(registered_cb);
         });
       }
 
@@ -374,13 +374,13 @@ bot.dialog('enrollDialog', (session, args) => {
 
   else {                                                                                      //New Enrollment process
     course = course.toUpperCase();
-    queryDatabase(`SELECT COUNT(*) FROM AvailableCourses WHERE courseid='${course}'`, function(value) {
+    queryDatabase(`SELECT COUNT(*) FROM AvailableCourses WHERE courseid='${course}'`, function(chkCourse_cb) {
 
-      if(value == 0) {
+      if(chkCourse_cb == 0) {
         session.send(`No course found named with the ID "${course}"`);
       }
 
-      else if(value == 1) {
+      else if(chkCourse_cb == 1) {
         session.send("Checking for the seat availability.....");
         queryDatabase(`SELECT Capacity-EnrolledCount FROM AvailableCourses WHERE courseid='${course}' and DATEPART(quarter, term) = DATEPART(quarter, GETDATE()) +1`, function(availableSeats) {
           if (availableSeats == 0) {
@@ -397,7 +397,6 @@ bot.dialog('enrollDialog', (session, args) => {
                     session.send("%s seat(s) are available at this time.", availableSeats);
                     queryDatabase(`UPDATE AvailableCourses SET EnrolledCount = EnrolledCount + 1 WHERE courseid='${course}'`);
                     queryDatabase(`INSERT INTO StudentEnrolledCourses (SUID, CourseID, status, EnrolledFor) VALUES (${suid},'${course}','E',DATEPART(quarter, GETDATE()) +1)`);
-
                     session.send(`Congratulations! You are now enrolled in ${course}.`);
                 }
             });                // end of the queryDatebase which checks if enrolled already
@@ -413,8 +412,8 @@ bot.dialog('enrollDialog', (session, args) => {
 
 bot.dialog('scheduleDialog', (session, args) => {
   var suid = lookup_session_suid(session.message.address.user.id);
-  queryDatabase(`SELECT COUNT(*) FROM StudentEnrolledCourses WHERE SUID=${suid}`, function(value) {
-    if (value == 0) {
+  queryDatabase(`SELECT COUNT(*) FROM StudentEnrolledCourses WHERE SUID=${suid}`, function(enrolledCount_cb) {
+    if (enrolledCount_cb == 0) {
       session.send("You are not enrolled in any courses.");
     }
     else{
