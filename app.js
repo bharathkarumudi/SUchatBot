@@ -1,7 +1,7 @@
 /*-----------------------------------------------------------------------------
 Project: Bot for Syracuse University
 Authors: Bharath Karumudi (bhkarumu@syr.edu), Haixin Chang (hchang04@syr.edu)
-Professor: Dr. Mehmet Kaya
+Course: CSE 682 - Software Engineering || Dr. Mehmet Kaya
 Framework: A simple Language Understanding (LUIS) bot for the Microsoft Bot Framework.
 Release: Ver 1.0
 -----------------------------------------------------------------------------*/
@@ -157,8 +157,8 @@ bot.use({
 bot.dialog('GreetingDialog',
     (session) => {
       var suid = lookup_session_suid(session.message.address.user.id);
-       queryDatabase(`select TOP 1 Fact from SUFunFacts order by newid()`, function(value) {
-        session.send("Hello, Welcome to Syracuse University! I am a bot and here to help you!\n\nDid you know?\n %s \n\n", value);
+       queryDatabase(`select TOP 1 Fact from SUFunFacts order by newid()`, function(fact) {
+        session.send("Hello, Welcome to Syracuse University! I am a bot and here to help you!\n\nDid you know?\n %s \n\n", fact);
         session.endDialog();
        });
     }
@@ -320,7 +320,7 @@ bot.dialog('accountsDialog', (session, args) => {
 
   if(accounts == 'owe' || accounts == 'due') {
     queryDatabase(`select distinct(termfee) - sum(Paidamount)  from AccountsInformation where SUID=${suid} and DATEPART(quarter, paiddate) = DATEPART(quarter, GETDATE()) and DATEPART(year, paiddate) = YEAR(GETDATE()) group by termfee`, function(balance_cb) {
-      if (value > 0) {
+      if (balance_cb > 0) {
       session.send("You owe a total of: $%s to the University for this term.",balance_cb);}
       else
         session.send("You have no balance due for this term.");
