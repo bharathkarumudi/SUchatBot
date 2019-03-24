@@ -321,7 +321,7 @@ bot.dialog('accountsDialog', (session, args) => {
   if(accounts == 'owe' || accounts == 'due') {
     queryDatabase(`select distinct(termfee) - sum(Paidamount)  from AccountsInformation where SUID=${suid} and DATEPART(quarter, paiddate) = DATEPART(quarter, GETDATE()) and DATEPART(year, paiddate) = YEAR(GETDATE()) group by termfee`, function(balance_cb) {
       if (balance_cb > 0) {
-      session.send("You owe a total of: $%s to the University for this term.",balance_cb);}
+      session.send("You owe a total of: $%s to the University at this time.",balance_cb);}
       else
         session.send("You have no balance due for this term.");
     });
