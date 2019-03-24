@@ -1,9 +1,6 @@
+
 /*-----------------------------------------------------------------------------
-Project: Bot for Syracuse University
-Authors: Bharath Karumudi (bhkarumu@syr.edu), Haixin Chang (hchang04@syr.edu)
-Professor: Dr. Mehmet Kaya
-Framework: A simple Language Understanding (LUIS) bot for the Microsoft Bot Framework.
-Release: Ver 1.0
+A simple Language Understanding (LUIS) bot for the Microsoft Bot Framework.
 -----------------------------------------------------------------------------*/
 
 var restify = require('restify');
@@ -47,7 +44,7 @@ var tableStorage = new botbuilder_azure.AzureBotStorage({ gzipData: false }, azu
 // This default message handler is invoked if the user's utterance doesn't
 // match any intents handled by other dialogs.
 var bot = new builder.UniversalBot(connector, function (session, args) {
-    session.send("Sorry, I didn't understand. Please try again.");
+    session.send('You reached the default message handler. You said \'%s\'.', session.message.text);
 });
 
 bot.set('storage', tableStorage);
@@ -113,29 +110,19 @@ function queryMulColumns(query, callback, errcallback=null) {
     connection.execSql(requestmulCol);
   });
 }
+/* global suid */
+var suid = 0;
 
-/*function lookup_session_suid(sessionID) {
+/*
+function lookup_session_suid(sessionID) {
    var slackId = sessionID;
-   var suid;
    queryDatabase(`select suid from studentprofile where SlackUserID = '${slackId}'`, function(studentID) {
     suid=studentID;
-    console.log("The value of suid in the look up before end --->", suid);
+    console.log("suid in func ------>", suid);
   });
-  console.log("The value of suid in the look up session --->", suid);
-  return suid;
 }*/
 
-function lookup_session_suid(sessionID) {
-
-  if (sessionID == "UF834CKCH:TF9NBDRB9")
-    return 1;
-   else if (sessionID == "UFKEE26KH:TF9NBDRB9")
-    return 2;
-   else
-    return 3;
-}
-
-/* for debugging purpose - session information
+/*
 bot.use({
  botbuilder: async function (session, next) {
            console.log("session user name------",session.message.address.user.name);
@@ -148,15 +135,22 @@ bot.use({
               console.log("su id after query exec ----------", suid);
             });
 
-           console.log("su id after --------->", suid);
+           console.log("su id after ----------", suid);
  }
 }); */
 
+//var suid = lookup_session_suid(session);
+//suid = 2;
+console.log("suid is ------>", suid);
 
 // Handling Greeting Intents
 bot.dialog('GreetingDialog',
     (session) => {
-      var suid = lookup_session_suid(session.message.address.user.id);
+      var slackId=session.message.address.user.id;
+      queryDatabase(`select suid from studentprofile where SlackUserID = '${slackId}'`, function(studentID) {
+        suid=studentID;
+       });
+
        queryDatabase(`select TOP 1 Fact from SUFunFacts order by newid()`, function(value) {
         session.send("Hello, Welcome to Syracuse University! I am a bot and here to help you!\n\nDid you know?\n %s \n\n", value);
         session.endDialog();
@@ -170,6 +164,7 @@ bot.dialog('GreetingDialog',
 // Handling the Help Intents
 bot.dialog('HelpDialog',
     (session) => {
+        //session.send('You reached the Help intent. You said \'%s\'.', session.message.text);
         session.send("You can ask me a question something like:\n1. Show me my profile details. \n2. How much I am due \n3. Enroll me in a class.");
         session.send("So, how can I help you?");
         session.endDialog();
@@ -181,6 +176,7 @@ bot.dialog('HelpDialog',
 // Handling the Cancel Intents
 bot.dialog('CancelDialog',
     (session) => {
+        //session.send('You reached the Cancel intent. You said \'%s\'.', session.message.text);
         session.send('Ok, canceling the request.');
         session.endDialog();
     }
@@ -190,7 +186,7 @@ bot.dialog('CancelDialog',
 
 // Handling Profile related Intents
 bot.dialog('profileDialog', (session, args) => {
-  var suid = lookup_session_suid(session.message.address.user.id);
+  //console.log("Debug: the su id in profile:" , suid);
   var intent = args.intent;
   var profile_field = builder.EntityRecognizer.findEntity(intent.entities, 'profile_field');
   profile_field = profile_field ? profile_field.entity : null;
@@ -202,7 +198,6 @@ bot.dialog('profileDialog', (session, args) => {
     }
 
     else if (profile_field == 'first name'){
-      console.log("Debug: the su id in profile:" , suid);
     queryDatabase(`select FirstName from StudentProfile where SUID=${suid}`, function(value) {
         session.send("Your First name as in records is: %s", value);
     });
@@ -262,7 +257,6 @@ bot.dialog('profileDialog', (session, args) => {
 
 // Handling the Update profile intents
 bot.dialog('updateProfile', [ function (session, args) {
-  var suid = lookup_session_suid(session.message.address.user.id);
   var intent = args.intent;
   var profile_field = builder.EntityRecognizer.findEntity(intent.entities, 'profile_field');
   profile_field = profile_field ? profile_field.entity : null;
@@ -281,7 +275,6 @@ bot.dialog('updateProfile', [ function (session, args) {
   }
  },
     function (session, results) {
-        var suid = lookup_session_suid(session.message.address.user.id);
         var profile_field = session.dialogData.profile_field;
         session.send(`Ok you want to change your ${profile_field} to ${results.response}`);
         session.send(`Updating your ${profile_field}...`);
@@ -313,7 +306,6 @@ bot.dialog('updateProfile', [ function (session, args) {
 
 //Handling the accounts intents
 bot.dialog('accountsDialog', (session, args) => {
-  var suid = lookup_session_suid(session.message.address.user.id);
   var intent = args.intent;
   var accounts = builder.EntityRecognizer.findEntity(intent.entities, 'accounts');
   accounts = accounts ? accounts.entity : null;
@@ -337,7 +329,6 @@ bot.dialog('accountsDialog', (session, args) => {
 
 //Handling the class enrollment intents
 bot.dialog('enrollDialog', (session, args) => {
-  var suid = lookup_session_suid(session.message.address.user.id);
   var intent = args.intent;
   var course = builder.EntityRecognizer.findEntity(args.intent.entities, 'course');
   course = course ? course.entity : null;
@@ -397,7 +388,7 @@ bot.dialog('enrollDialog', (session, args) => {
                     session.send("%s seat(s) are available at this time.", availableSeats);
                     queryDatabase(`UPDATE AvailableCourses SET EnrolledCount = EnrolledCount + 1 WHERE courseid='${course}'`);
                     queryDatabase(`INSERT INTO StudentEnrolledCourses (SUID, CourseID, status, EnrolledFor) VALUES (${suid},'${course}','E',DATEPART(quarter, GETDATE()) +1)`);
-
+            
                     session.send(`Congratulations! You are now enrolled in ${course}.`);
                 }
             });                // end of the queryDatebase which checks if enrolled already
@@ -410,9 +401,8 @@ bot.dialog('enrollDialog', (session, args) => {
   matches: 'enroll'
 });
 
-
+  
 bot.dialog('scheduleDialog', (session, args) => {
-  var suid = lookup_session_suid(session.message.address.user.id);
   queryDatabase(`SELECT COUNT(*) FROM StudentEnrolledCourses WHERE SUID=${suid}`, function(value) {
     if (value == 0) {
       session.send("You are not enrolled in any courses.");
