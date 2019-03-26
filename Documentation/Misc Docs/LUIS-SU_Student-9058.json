@@ -1,0 +1,1284 @@
+{
+  "luis_schema_version": "3.2.0",
+  "versionId": "Production",
+  "name": "SU_Student-9058",
+  "desc": "Default Intents for Azure Bot Service V2",
+  "culture": "en-us",
+  "tokenizerVersion": "1.0.0",
+  "intents": [
+    {
+      "name": "accounts"
+    },
+    {
+      "name": "Cancel"
+    },
+    {
+      "name": "check_profile"
+    },
+    {
+      "name": "check_schedule"
+    },
+    {
+      "name": "Debug"
+    },
+    {
+      "name": "enroll"
+    },
+    {
+      "name": "Greeting"
+    },
+    {
+      "name": "Help"
+    },
+    {
+      "name": "None"
+    },
+    {
+      "name": "update_profile"
+    }
+  ],
+  "entities": [
+    {
+      "name": "accounts",
+      "roles": []
+    },
+    {
+      "name": "course",
+      "roles": []
+    },
+    {
+      "name": "profile_field",
+      "roles": [
+        "What is my complete profile"
+      ]
+    },
+    {
+      "name": "schedule_field",
+      "roles": []
+    },
+    {
+      "name": "update",
+      "roles": []
+    }
+  ],
+  "composites": [],
+  "closedLists": [],
+  "patternAnyEntities": [],
+  "regex_entities": [],
+  "prebuiltEntities": [],
+  "model_features": [],
+  "regex_features": [],
+  "patterns": [
+    {
+      "pattern": "enroll in {course}",
+      "intent": "enroll"
+    },
+    {
+      "pattern": "what is my {profile_field}",
+      "intent": "check_profile"
+    }
+  ],
+  "utterances": [
+    {
+      "text": "abort",
+      "intent": "Cancel",
+      "entities": []
+    },
+    {
+      "text": "asdklfjhalskjdfhasd",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "available courses to register",
+      "intent": "enroll",
+      "entities": [
+        {
+          "entity": "course",
+          "startPos": 0,
+          "endPos": 8
+        }
+      ]
+    },
+    {
+      "text": "can i have my address?",
+      "intent": "check_profile",
+      "entities": [
+        {
+          "entity": "profile_field",
+          "startPos": 14,
+          "endPos": 20
+        }
+      ]
+    },
+    {
+      "text": "cancel",
+      "intent": "Cancel",
+      "entities": []
+    },
+    {
+      "text": "change my address",
+      "intent": "update_profile",
+      "entities": [
+        {
+          "entity": "profile_field",
+          "startPos": 10,
+          "endPos": 16
+        }
+      ]
+    },
+    {
+      "text": "change my personal information",
+      "intent": "update_profile",
+      "entities": [
+        {
+          "entity": "profile_field",
+          "startPos": 10,
+          "endPos": 29
+        }
+      ]
+    },
+    {
+      "text": "change my phone",
+      "intent": "update_profile",
+      "entities": [
+        {
+          "entity": "profile_field",
+          "startPos": 10,
+          "endPos": 14
+        }
+      ]
+    },
+    {
+      "text": "change my profile",
+      "intent": "update_profile",
+      "entities": [
+        {
+          "entity": "profile_field",
+          "startPos": 10,
+          "endPos": 16
+        }
+      ]
+    },
+    {
+      "text": "courses i registered",
+      "intent": "enroll",
+      "entities": [
+        {
+          "entity": "course",
+          "startPos": 10,
+          "endPos": 19
+        }
+      ]
+    },
+    {
+      "text": "debug",
+      "intent": "Debug",
+      "entities": []
+    },
+    {
+      "text": "debug'",
+      "intent": "Debug",
+      "entities": []
+    },
+    {
+      "text": "debug who am i",
+      "intent": "Debug",
+      "entities": []
+    },
+    {
+      "text": "disregard",
+      "intent": "Cancel",
+      "entities": []
+    },
+    {
+      "text": "do not do it",
+      "intent": "Cancel",
+      "entities": []
+    },
+    {
+      "text": "do not do that",
+      "intent": "Cancel",
+      "entities": []
+    },
+    {
+      "text": "don't",
+      "intent": "Cancel",
+      "entities": []
+    },
+    {
+      "text": "don't do it",
+      "intent": "Cancel",
+      "entities": []
+    },
+    {
+      "text": "don't do that",
+      "intent": "Cancel",
+      "entities": []
+    },
+    {
+      "text": "email",
+      "intent": "check_profile",
+      "entities": []
+    },
+    {
+      "text": "enroll bio415",
+      "intent": "enroll",
+      "entities": [
+        {
+          "entity": "course",
+          "startPos": 7,
+          "endPos": 12
+        }
+      ]
+    },
+    {
+      "text": "enroll cs101",
+      "intent": "enroll",
+      "entities": [
+        {
+          "entity": "course",
+          "startPos": 7,
+          "endPos": 11
+        }
+      ]
+    },
+    {
+      "text": "enroll cse682",
+      "intent": "enroll",
+      "entities": [
+        {
+          "entity": "course",
+          "startPos": 7,
+          "endPos": 12
+        }
+      ]
+    },
+    {
+      "text": "enroll for geo567",
+      "intent": "enroll",
+      "entities": [
+        {
+          "entity": "course",
+          "startPos": 11,
+          "endPos": 16
+        }
+      ]
+    },
+    {
+      "text": "enroll in chem685",
+      "intent": "enroll",
+      "entities": [
+        {
+          "entity": "course",
+          "startPos": 10,
+          "endPos": 16
+        }
+      ]
+    },
+    {
+      "text": "enroll in cs101",
+      "intent": "enroll",
+      "entities": [
+        {
+          "entity": "course",
+          "startPos": 10,
+          "endPos": 14
+        }
+      ]
+    },
+    {
+      "text": "enroll in cse682",
+      "intent": "enroll",
+      "entities": [
+        {
+          "entity": "course",
+          "startPos": 10,
+          "endPos": 15
+        }
+      ]
+    },
+    {
+      "text": "enroll me in class",
+      "intent": "enroll",
+      "entities": [
+        {
+          "entity": "course",
+          "startPos": 13,
+          "endPos": 17
+        }
+      ]
+    },
+    {
+      "text": "enroll me in cse 682",
+      "intent": "enroll",
+      "entities": [
+        {
+          "entity": "course",
+          "startPos": 13,
+          "endPos": 19
+        }
+      ]
+    },
+    {
+      "text": "first name",
+      "intent": "check_profile",
+      "entities": []
+    },
+    {
+      "text": "foo",
+      "intent": "Debug",
+      "entities": []
+    },
+    {
+      "text": "get my complete profile",
+      "intent": "check_profile",
+      "entities": [
+        {
+          "entity": "profile_field",
+          "startPos": 7,
+          "endPos": 22
+        }
+      ]
+    },
+    {
+      "text": "get my profile",
+      "intent": "check_profile",
+      "entities": [
+        {
+          "entity": "profile_field",
+          "startPos": 7,
+          "endPos": 13
+        }
+      ]
+    },
+    {
+      "text": "get my profile details",
+      "intent": "check_profile",
+      "entities": [
+        {
+          "entity": "profile_field",
+          "startPos": 7,
+          "endPos": 13
+        }
+      ]
+    },
+    {
+      "text": "good afternoon",
+      "intent": "Greeting",
+      "entities": []
+    },
+    {
+      "text": "good evening",
+      "intent": "Greeting",
+      "entities": []
+    },
+    {
+      "text": "good morning",
+      "intent": "Greeting",
+      "entities": []
+    },
+    {
+      "text": "good night",
+      "intent": "Greeting",
+      "entities": []
+    },
+    {
+      "text": "hello",
+      "intent": "Greeting",
+      "entities": []
+    },
+    {
+      "text": "hello bharath",
+      "intent": "Greeting",
+      "entities": []
+    },
+    {
+      "text": "hello bot",
+      "intent": "Greeting",
+      "entities": []
+    },
+    {
+      "text": "help",
+      "intent": "Help",
+      "entities": []
+    },
+    {
+      "text": "help me",
+      "intent": "Help",
+      "entities": []
+    },
+    {
+      "text": "help me please",
+      "intent": "Help",
+      "entities": []
+    },
+    {
+      "text": "help please",
+      "intent": "Help",
+      "entities": []
+    },
+    {
+      "text": "hi",
+      "intent": "Greeting",
+      "entities": []
+    },
+    {
+      "text": "hi bot",
+      "intent": "Greeting",
+      "entities": []
+    },
+    {
+      "text": "hi dude",
+      "intent": "Greeting",
+      "entities": []
+    },
+    {
+      "text": "hiya",
+      "intent": "Greeting",
+      "entities": []
+    },
+    {
+      "text": "hola",
+      "intent": "Greeting",
+      "entities": []
+    },
+    {
+      "text": "how are you",
+      "intent": "Greeting",
+      "entities": []
+    },
+    {
+      "text": "how are you doing today?",
+      "intent": "Greeting",
+      "entities": []
+    },
+    {
+      "text": "how are you doing?",
+      "intent": "Greeting",
+      "entities": []
+    },
+    {
+      "text": "how are you today?",
+      "intent": "Greeting",
+      "entities": []
+    },
+    {
+      "text": "how are you?",
+      "intent": "Greeting",
+      "entities": []
+    },
+    {
+      "text": "how can you help me?",
+      "intent": "Help",
+      "entities": []
+    },
+    {
+      "text": "how much i have to pay?",
+      "intent": "accounts",
+      "entities": [
+        {
+          "entity": "accounts",
+          "startPos": 19,
+          "endPos": 21
+        }
+      ]
+    },
+    {
+      "text": "how much i need to pay",
+      "intent": "accounts",
+      "entities": [
+        {
+          "entity": "accounts",
+          "startPos": 19,
+          "endPos": 21
+        }
+      ]
+    },
+    {
+      "text": "how much i owe",
+      "intent": "accounts",
+      "entities": [
+        {
+          "entity": "accounts",
+          "startPos": 11,
+          "endPos": 13
+        }
+      ]
+    },
+    {
+      "text": "how much i owe to the university",
+      "intent": "accounts",
+      "entities": [
+        {
+          "entity": "accounts",
+          "startPos": 11,
+          "endPos": 13
+        }
+      ]
+    },
+    {
+      "text": "how much i owe to the university?",
+      "intent": "accounts",
+      "entities": [
+        {
+          "entity": "accounts",
+          "startPos": 11,
+          "endPos": 13
+        }
+      ]
+    },
+    {
+      "text": "how much i owe?",
+      "intent": "accounts",
+      "entities": [
+        {
+          "entity": "accounts",
+          "startPos": 11,
+          "endPos": 13
+        }
+      ]
+    },
+    {
+      "text": "how much is my due",
+      "intent": "accounts",
+      "entities": [
+        {
+          "entity": "accounts",
+          "startPos": 15,
+          "endPos": 17
+        }
+      ]
+    },
+    {
+      "text": "i am stuck",
+      "intent": "Help",
+      "entities": []
+    },
+    {
+      "text": "i want to change my email",
+      "intent": "update_profile",
+      "entities": [
+        {
+          "entity": "profile_field",
+          "startPos": 20,
+          "endPos": 24
+        }
+      ]
+    },
+    {
+      "text": "i want to enroll for software engineering class",
+      "intent": "enroll",
+      "entities": []
+    },
+    {
+      "text": "i want to register for cis675",
+      "intent": "enroll",
+      "entities": [
+        {
+          "entity": "course",
+          "startPos": 23,
+          "endPos": 28
+        }
+      ]
+    },
+    {
+      "text": "i would like to cancel",
+      "intent": "Cancel",
+      "entities": []
+    },
+    {
+      "text": "i'm stuck",
+      "intent": "Help",
+      "entities": []
+    },
+    {
+      "text": "last name",
+      "intent": "check_profile",
+      "entities": []
+    },
+    {
+      "text": "my water bottle is green.",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "never mind",
+      "intent": "Cancel",
+      "entities": []
+    },
+    {
+      "text": "payment due",
+      "intent": "accounts",
+      "entities": [
+        {
+          "entity": "accounts",
+          "startPos": 8,
+          "endPos": 10
+        }
+      ]
+    },
+    {
+      "text": "please cancel",
+      "intent": "Cancel",
+      "entities": []
+    },
+    {
+      "text": "please disregard",
+      "intent": "Cancel",
+      "entities": []
+    },
+    {
+      "text": "please help me",
+      "intent": "Help",
+      "entities": []
+    },
+    {
+      "text": "please stop",
+      "intent": "Cancel",
+      "entities": []
+    },
+    {
+      "text": "profile",
+      "intent": "check_profile",
+      "entities": []
+    },
+    {
+      "text": "profile email",
+      "intent": "check_profile",
+      "entities": [
+        {
+          "entity": "profile_field",
+          "startPos": 8,
+          "endPos": 12
+        }
+      ]
+    },
+    {
+      "text": "show me my profile",
+      "intent": "check_profile",
+      "entities": [
+        {
+          "entity": "profile_field",
+          "startPos": 11,
+          "endPos": 17
+        }
+      ]
+    },
+    {
+      "text": "show me my profile details",
+      "intent": "check_profile",
+      "entities": [
+        {
+          "entity": "profile_field",
+          "startPos": 11,
+          "endPos": 17
+        }
+      ]
+    },
+    {
+      "text": "show my complete profile",
+      "intent": "check_profile",
+      "entities": [
+        {
+          "entity": "profile_field",
+          "startPos": 8,
+          "endPos": 23
+        }
+      ]
+    },
+    {
+      "text": "show my profile",
+      "intent": "check_profile",
+      "entities": [
+        {
+          "entity": "profile_field",
+          "startPos": 8,
+          "endPos": 14
+        }
+      ]
+    },
+    {
+      "text": "show my registrations",
+      "intent": "enroll",
+      "entities": [
+        {
+          "entity": "course",
+          "startPos": 8,
+          "endPos": 20
+        }
+      ]
+    },
+    {
+      "text": "sign up for phys111",
+      "intent": "enroll",
+      "entities": [
+        {
+          "entity": "course",
+          "startPos": 12,
+          "endPos": 18
+        }
+      ]
+    },
+    {
+      "text": "sign up soc300",
+      "intent": "enroll",
+      "entities": [
+        {
+          "entity": "course",
+          "startPos": 8,
+          "endPos": 13
+        }
+      ]
+    },
+    {
+      "text": "stop",
+      "intent": "Cancel",
+      "entities": []
+    },
+    {
+      "text": "test",
+      "intent": "Greeting",
+      "entities": []
+    },
+    {
+      "text": "there is a large deep dish pizza in your future.",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "update my address",
+      "intent": "update_profile",
+      "entities": [
+        {
+          "entity": "profile_field",
+          "startPos": 10,
+          "endPos": 16
+        }
+      ]
+    },
+    {
+      "text": "update my email",
+      "intent": "update_profile",
+      "entities": [
+        {
+          "entity": "profile_field",
+          "startPos": 10,
+          "endPos": 14
+        }
+      ]
+    },
+    {
+      "text": "update my information",
+      "intent": "update_profile",
+      "entities": [
+        {
+          "entity": "profile_field",
+          "startPos": 10,
+          "endPos": 20
+        }
+      ]
+    },
+    {
+      "text": "update my phone number",
+      "intent": "update_profile",
+      "entities": [
+        {
+          "entity": "profile_field",
+          "startPos": 10,
+          "endPos": 14
+        }
+      ]
+    },
+    {
+      "text": "update my profile",
+      "intent": "update_profile",
+      "entities": [
+        {
+          "entity": "profile_field",
+          "startPos": 10,
+          "endPos": 16
+        }
+      ]
+    },
+    {
+      "text": "what are my class schedules",
+      "intent": "check_schedule",
+      "entities": [
+        {
+          "entity": "schedule_field",
+          "startPos": 18,
+          "endPos": 26
+        }
+      ]
+    },
+    {
+      "text": "what are my courses",
+      "intent": "enroll",
+      "entities": [
+        {
+          "entity": "course",
+          "startPos": 12,
+          "endPos": 18
+        }
+      ]
+    },
+    {
+      "text": "what are my current enrollements",
+      "intent": "enroll",
+      "entities": [
+        {
+          "entity": "course",
+          "startPos": 20,
+          "endPos": 31
+        }
+      ]
+    },
+    {
+      "text": "what are my current enrollments",
+      "intent": "enroll",
+      "entities": [
+        {
+          "entity": "course",
+          "startPos": 20,
+          "endPos": 30
+        }
+      ]
+    },
+    {
+      "text": "what are my current registrations",
+      "intent": "enroll",
+      "entities": [
+        {
+          "entity": "course",
+          "startPos": 20,
+          "endPos": 32
+        }
+      ]
+    },
+    {
+      "text": "what are my enrolled courses",
+      "intent": "enroll",
+      "entities": [
+        {
+          "entity": "course",
+          "startPos": 21,
+          "endPos": 27
+        }
+      ]
+    },
+    {
+      "text": "what are my registrations",
+      "intent": "enroll",
+      "entities": [
+        {
+          "entity": "course",
+          "startPos": 12,
+          "endPos": 24
+        }
+      ]
+    },
+    {
+      "text": "what are my registrations?",
+      "intent": "enroll",
+      "entities": [
+        {
+          "entity": "course",
+          "startPos": 12,
+          "endPos": 24
+        }
+      ]
+    },
+    {
+      "text": "what are the available courses",
+      "intent": "enroll",
+      "entities": [
+        {
+          "entity": "course",
+          "startPos": 13,
+          "endPos": 29
+        }
+      ]
+    },
+    {
+      "text": "what are the course offerings?",
+      "intent": "enroll",
+      "entities": [
+        {
+          "entity": "course",
+          "startPos": 20,
+          "endPos": 28
+        }
+      ]
+    },
+    {
+      "text": "what are the offerings for the next term?",
+      "intent": "enroll",
+      "entities": [
+        {
+          "entity": "course",
+          "startPos": 13,
+          "endPos": 21
+        }
+      ]
+    },
+    {
+      "text": "what can i say",
+      "intent": "Help",
+      "entities": []
+    },
+    {
+      "text": "what can you do",
+      "intent": "Help",
+      "entities": []
+    },
+    {
+      "text": "what can you do?",
+      "intent": "Help",
+      "entities": []
+    },
+    {
+      "text": "what can you help me with",
+      "intent": "Help",
+      "entities": []
+    },
+    {
+      "text": "what do i do now?",
+      "intent": "Help",
+      "entities": []
+    },
+    {
+      "text": "what do i do?",
+      "intent": "Help",
+      "entities": []
+    },
+    {
+      "text": "what is my account balance",
+      "intent": "accounts",
+      "entities": [
+        {
+          "entity": "accounts",
+          "startPos": 11,
+          "endPos": 17
+        }
+      ]
+    },
+    {
+      "text": "what is my address",
+      "intent": "check_profile",
+      "entities": [
+        {
+          "entity": "profile_field",
+          "startPos": 11,
+          "endPos": 17
+        }
+      ]
+    },
+    {
+      "text": "what is my address?",
+      "intent": "check_profile",
+      "entities": [
+        {
+          "entity": "profile_field",
+          "startPos": 11,
+          "endPos": 17
+        }
+      ]
+    },
+    {
+      "text": "what is my class",
+      "intent": "check_schedule",
+      "entities": [
+        {
+          "entity": "schedule_field",
+          "startPos": 11,
+          "endPos": 15
+        }
+      ]
+    },
+    {
+      "text": "what is my class schedule",
+      "intent": "check_schedule",
+      "entities": [
+        {
+          "entity": "schedule_field",
+          "startPos": 11,
+          "endPos": 15
+        }
+      ]
+    },
+    {
+      "text": "what is my complete profile",
+      "intent": "check_profile",
+      "entities": [
+        {
+          "entity": "profile_field",
+          "startPos": 11,
+          "endPos": 26
+        }
+      ]
+    },
+    {
+      "text": "what is my complete profile?",
+      "intent": "check_profile",
+      "entities": [
+        {
+          "entity": "profile_field",
+          "startPos": 11,
+          "endPos": 26
+        }
+      ]
+    },
+    {
+      "text": "what is my course name",
+      "intent": "check_profile",
+      "entities": [
+        {
+          "entity": "profile_field",
+          "startPos": 11,
+          "endPos": 21
+        }
+      ]
+    },
+    {
+      "text": "what is my due",
+      "intent": "accounts",
+      "entities": [
+        {
+          "entity": "accounts",
+          "startPos": 11,
+          "endPos": 13
+        }
+      ]
+    },
+    {
+      "text": "what is my email",
+      "intent": "check_profile",
+      "entities": [
+        {
+          "entity": "profile_field",
+          "startPos": 11,
+          "endPos": 15
+        }
+      ]
+    },
+    {
+      "text": "what is my email address?",
+      "intent": "check_profile",
+      "entities": [
+        {
+          "entity": "profile_field",
+          "startPos": 11,
+          "endPos": 15
+        }
+      ]
+    },
+    {
+      "text": "what is my email?",
+      "intent": "check_profile",
+      "entities": [
+        {
+          "entity": "profile_field",
+          "startPos": 11,
+          "endPos": 15
+        }
+      ]
+    },
+    {
+      "text": "what is my exam schedule",
+      "intent": "check_schedule",
+      "entities": [
+        {
+          "entity": "schedule_field",
+          "startPos": 11,
+          "endPos": 14
+        }
+      ]
+    },
+    {
+      "text": "what is my first name?",
+      "intent": "check_profile",
+      "entities": [
+        {
+          "entity": "profile_field",
+          "startPos": 11,
+          "endPos": 20
+        }
+      ]
+    },
+    {
+      "text": "what is my last name?",
+      "intent": "check_profile",
+      "entities": [
+        {
+          "entity": "profile_field",
+          "startPos": 11,
+          "endPos": 19
+        }
+      ]
+    },
+    {
+      "text": "what is my name",
+      "intent": "check_profile",
+      "entities": [
+        {
+          "entity": "profile_field",
+          "startPos": 11,
+          "endPos": 14
+        }
+      ]
+    },
+    {
+      "text": "what is my name?",
+      "intent": "check_profile",
+      "entities": [
+        {
+          "entity": "profile_field",
+          "startPos": 11,
+          "endPos": 14
+        }
+      ]
+    },
+    {
+      "text": "what is my payment due?",
+      "intent": "accounts",
+      "entities": [
+        {
+          "entity": "accounts",
+          "startPos": 19,
+          "endPos": 21
+        }
+      ]
+    },
+    {
+      "text": "what is my profile",
+      "intent": "check_profile",
+      "entities": [
+        {
+          "entity": "profile_field",
+          "startPos": 11,
+          "endPos": 17
+        }
+      ]
+    },
+    {
+      "text": "what is my profile?",
+      "intent": "check_profile",
+      "entities": [
+        {
+          "entity": "profile_field",
+          "startPos": 11,
+          "endPos": 17
+        }
+      ]
+    },
+    {
+      "text": "what is my program name?",
+      "intent": "check_profile",
+      "entities": [
+        {
+          "entity": "profile_field",
+          "startPos": 11,
+          "endPos": 17
+        }
+      ]
+    },
+    {
+      "text": "what is my registration",
+      "intent": "enroll",
+      "entities": [
+        {
+          "entity": "course",
+          "startPos": 11,
+          "endPos": 22
+        }
+      ]
+    },
+    {
+      "text": "what is my su id",
+      "intent": "check_profile",
+      "entities": [
+        {
+          "entity": "profile_field",
+          "startPos": 14,
+          "endPos": 15
+        }
+      ]
+    },
+    {
+      "text": "what is my suid",
+      "intent": "Debug",
+      "entities": []
+    },
+    {
+      "text": "what is my term fee",
+      "intent": "accounts",
+      "entities": [
+        {
+          "entity": "accounts",
+          "startPos": 11,
+          "endPos": 18
+        }
+      ]
+    },
+    {
+      "text": "what is my today schedule",
+      "intent": "check_schedule",
+      "entities": [
+        {
+          "entity": "schedule_field",
+          "startPos": 17,
+          "endPos": 24
+        }
+      ]
+    },
+    {
+      "text": "what is my user id",
+      "intent": "Debug",
+      "entities": []
+    },
+    {
+      "text": "when is my class",
+      "intent": "check_schedule",
+      "entities": [
+        {
+          "entity": "schedule_field",
+          "startPos": 11,
+          "endPos": 15
+        }
+      ]
+    },
+    {
+      "text": "when is my next exam",
+      "intent": "check_schedule",
+      "entities": [
+        {
+          "entity": "schedule_field",
+          "startPos": 16,
+          "endPos": 19
+        }
+      ]
+    },
+    {
+      "text": "who am i",
+      "intent": "check_profile",
+      "entities": []
+    },
+    {
+      "text": "who is current user",
+      "intent": "Debug",
+      "entities": []
+    },
+    {
+      "text": "why doesn't this work ?",
+      "intent": "Help",
+      "entities": []
+    },
+    {
+      "text": "yes",
+      "intent": "Greeting",
+      "entities": []
+    }
+  ],
+  "settings": []
+}
